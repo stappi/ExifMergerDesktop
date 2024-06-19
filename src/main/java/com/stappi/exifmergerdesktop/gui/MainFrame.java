@@ -4,21 +4,29 @@
  */
 package com.stappi.exifmergerdesktop.gui;
 
-import java.awt.Image;
+import com.stappi.exifmergerdesktop.utilities.GuiUtilities;
+import com.stappi.exifmergerdesktop.utilities.ImageUtilities;
+import java.awt.Component;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.imageio.ImageIO;
+import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+import javax.swing.Box;
 
 /**
  *
  * @author Michael Stappert
  */
 public class MainFrame extends javax.swing.JFrame {
+
+    private List<File> photos = new ArrayList<>();
 
     /**
      * Creates new form MainFrame
@@ -37,12 +45,11 @@ public class MainFrame extends javax.swing.JFrame {
     private void initComponents() {
 
         photosPanel = new javax.swing.JPanel();
-        img01Label = new javax.swing.JLabel();
         exifDataPanel = new javax.swing.JPanel();
         workPanel = new javax.swing.JPanel();
         menuBar = new javax.swing.JMenuBar();
         fileMenu = new javax.swing.JMenu();
-        openPhotoMenuItem = new javax.swing.JMenuItem();
+        openPhotosMenuItem = new javax.swing.JMenuItem();
         openFolderMenuItem = new javax.swing.JMenuItem();
         saveMenuItem = new javax.swing.JMenuItem();
         saveCopyMenuItem = new javax.swing.JMenuItem();
@@ -63,23 +70,15 @@ public class MainFrame extends javax.swing.JFrame {
         photosPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         photosPanel.setPreferredSize(new java.awt.Dimension(200, 4));
 
-        img01Label.setText("jLabel1");
-
         javax.swing.GroupLayout photosPanelLayout = new javax.swing.GroupLayout(photosPanel);
         photosPanel.setLayout(photosPanelLayout);
         photosPanelLayout.setHorizontalGroup(
             photosPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(photosPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(img01Label)
-                .addContainerGap(153, Short.MAX_VALUE))
+            .addGap(0, 196, Short.MAX_VALUE)
         );
         photosPanelLayout.setVerticalGroup(
             photosPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(photosPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(img01Label)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGap(0, 561, Short.MAX_VALUE)
         );
 
         exifDataPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -113,15 +112,15 @@ public class MainFrame extends javax.swing.JFrame {
 
         fileMenu.setText("File");
 
-        openPhotoMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.CTRL_DOWN_MASK));
-        openPhotoMenuItem.setMnemonic('o');
-        openPhotoMenuItem.setText("Open Photo");
-        openPhotoMenuItem.addActionListener(new java.awt.event.ActionListener() {
+        openPhotosMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.CTRL_DOWN_MASK));
+        openPhotosMenuItem.setMnemonic('o');
+        openPhotosMenuItem.setText("Open Photos");
+        openPhotosMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                openPhotoMenuItemActionPerformed(evt);
+                openPhotosMenuItemActionPerformed(evt);
             }
         });
-        fileMenu.add(openPhotoMenuItem);
+        fileMenu.add(openPhotosMenuItem);
 
         openFolderMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.SHIFT_DOWN_MASK | java.awt.event.InputEvent.CTRL_DOWN_MASK));
         openFolderMenuItem.setText("Open Folder");
@@ -257,45 +256,63 @@ public class MainFrame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void openPhotoMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openPhotoMenuItemActionPerformed
+    private void openPhotosMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openPhotosMenuItemActionPerformed
         System.out.println("Menu Item Open Photo");
-        
+
         try {
-            BufferedImage myPicture = ImageIO.read(new File("C:\\exifTest\\20231013-130334_Thailand.jpeg"));
-            
-            
-            // Maximalmaße
-            int maxWidth = 200;
-            int maxHeight = 200;
+            List<File> newPhotos = GuiUtilities.showPhotosChooser(this, photos.isEmpty() ? null : photos.get(photos.size() - 1));
+            // remove all ready existing images
+            for (File file : newPhotos) {
+                // Grafik für das skalierte Bild erstellen
+                BufferedImage bufferedScaledImage = ImageUtilities.loadImage(file, 172, 172);
+                photosPanel.add(Box.createVerticalStrut(10));
+                photosPanel.setLayout(new BoxLayout(photosPanel, BoxLayout.Y_AXIS));
+                // JLabel mit dem skalierten Bild setzen
 
-            // Originalmaße
-            int originalWidth = myPicture.getWidth();
-            int originalHeight = myPicture.getHeight();
+                JLabel label = new JLabel(new ImageIcon(bufferedScaledImage));
+                label.setAlignmentX(Component.CENTER_ALIGNMENT);
+                photosPanel.add(label);
+                photosPanel.add(Box.createVerticalStrut(10));
+            }
+            photos.addAll(newPhotos);
 
-            // Berechne die Skalierung, um die größten Dimensionen einzuhalten
-            double widthScale = (double) maxWidth / originalWidth;
-            double heightScale = (double) maxHeight / originalHeight;
-            double scale = Math.min(widthScale, heightScale);
-
-            // Neue Dimensionen
-            int newWidth = (int) (originalWidth * scale);
-            int newHeight = (int) (originalHeight * scale);
-            
-            Image scaledImage = myPicture.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
-            BufferedImage bufferedScaledImage = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
-
-            // Grafik für das skalierte Bild erstellen
-            bufferedScaledImage.getGraphics().drawImage(scaledImage, 0, 0, null);
-
-            // JLabel mit dem skalierten Bild setzen
-            img01Label.setIcon(new ImageIcon(bufferedScaledImage));
+            // revalidate and redraw panel
+            photosPanel.revalidate();
+            photosPanel.repaint();
         } catch (IOException ex) {
             Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }//GEN-LAST:event_openPhotoMenuItemActionPerformed
+    }//GEN-LAST:event_openPhotosMenuItemActionPerformed
 
     private void openFolderMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openFolderMenuItemActionPerformed
         System.out.println("Menu Item Open Folder");
+
+        try {
+            File directory = GuiUtilities.showDirectoryChooser(this,
+                    photos.isEmpty() ? null : photos.get(photos.size() - 1));
+            List<File> newPhotos = new ArrayList<>(Arrays.asList(directory.listFiles((File file)
+                    -> file.getName().endsWith(".jpg") || file.getName().endsWith(".jpeg"))));
+            // remove all ready existing images
+            for (File file : newPhotos) {
+                // Grafik für das skalierte Bild erstellen
+                BufferedImage bufferedScaledImage = ImageUtilities.loadImage(file, 172, 172);
+                photosPanel.add(Box.createVerticalStrut(10));
+                photosPanel.setLayout(new BoxLayout(photosPanel, BoxLayout.Y_AXIS));
+                // JLabel mit dem skalierten Bild setzen
+
+                JLabel label = new JLabel(new ImageIcon(bufferedScaledImage));
+                label.setAlignmentX(Component.CENTER_ALIGNMENT);
+                photosPanel.add(label);
+                photosPanel.add(Box.createVerticalStrut(10));
+            }
+            photos.addAll(newPhotos);
+
+            // revalidate and redraw panel
+            photosPanel.revalidate();
+            photosPanel.repaint();
+        } catch (IOException ex) {
+            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_openFolderMenuItemActionPerformed
 
     private void saveMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveMenuItemActionPerformed
@@ -342,12 +359,11 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JMenuItem globalExifDataMenuItem;
     private javax.swing.JMenu helpMenu;
     private javax.swing.JMenuItem helpMenuItem;
-    private javax.swing.JLabel img01Label;
     private javax.swing.JMenuItem loadMenuItem;
     private javax.swing.JMenuBar menuBar;
     private javax.swing.JMenuItem mergePriorizationMenuItem;
     private javax.swing.JMenuItem openFolderMenuItem;
-    private javax.swing.JMenuItem openPhotoMenuItem;
+    private javax.swing.JMenuItem openPhotosMenuItem;
     private javax.swing.JMenu photoReferenceMenu;
     private javax.swing.JPanel photosPanel;
     private javax.swing.JMenuItem removeMenuItem;
