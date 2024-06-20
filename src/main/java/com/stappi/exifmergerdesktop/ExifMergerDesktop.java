@@ -5,6 +5,7 @@
 package com.stappi.exifmergerdesktop;
 
 import com.stappi.exifmergerdesktop.gui.MainFrame;
+import javax.swing.SwingUtilities;
 
 /**
  *
@@ -13,8 +14,8 @@ import com.stappi.exifmergerdesktop.gui.MainFrame;
 public class ExifMergerDesktop {
 
     public static void main(String[] args) {
-        java.awt.EventQueue.invokeLater(() -> {
-            new MainFrame().setVisible(true);
+        SwingUtilities.invokeLater(() -> {
+             new MainFrame().setVisible(true);
         });
     }
 }
