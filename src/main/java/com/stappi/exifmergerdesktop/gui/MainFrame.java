@@ -7,6 +7,15 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetDragEvent;
+import java.awt.dnd.DropTargetDropEvent;
+import java.awt.dnd.DropTargetEvent;
+import java.awt.dnd.DropTargetListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
@@ -44,7 +53,7 @@ public class MainFrame extends JFrame {
     private JMenuItem openFolderMenuItem;
     private JMenuItem saveMenuItem;
     private JMenuItem saveCopyMenuItem;
-    private JMenuItem clearPhotoTableMenuItem;    
+    private JMenuItem clearPhotoTableMenuItem;
     private JMenu photoReferenceMenu;
     private JMenuItem loadMenuItem;
     private JMenuItem removeMenuItem;
@@ -72,6 +81,13 @@ public class MainFrame extends JFrame {
     }
 
     // =========================================================================
+    private File getLastAddedPhotoFile() {
+        return photoTableModel.getLastAddedPhoto() != null ? photoTableModel.getLastAddedPhoto().getFile() : null;
+    }
+    
+    // =========================================================================
+    // listener
+    // =========================================================================
     private void toggleSidebar() {
         if (toggleSidebarButton.getText().equals("<")) {
             horizontalSplitPane.setDividerLocation(SIDEBAR_MIN_WIDTH);  // Sidebar einklappen
@@ -88,11 +104,7 @@ public class MainFrame extends JFrame {
         System.out.println("Menu Item Open Photo");
 
 //        try {
-        List<Photo> newPhotos = GuiUtilities.showPhotosChooser(
-                this, photoTableModel.getLastAddedPhoto() != null ? photoTableModel.getLastAddedPhoto().getFile() : null)
-                .stream()
-                .map(file -> Photo.builder().file(file).build())
-                .collect(Collectors.toList());
+        List<Photo> newPhotos = Photo.loadPhotos(GuiUtilities.showPhotosChooser(this, getLastAddedPhotoFile()));
         photoTableModel.addPhotos(newPhotos);
 
         // remove all ready existing images
@@ -122,15 +134,8 @@ public class MainFrame extends JFrame {
         System.out.println("Menu Item Open Folder");
 
 //        try {
-        File directory = GuiUtilities.showDirectoryChooser(this,
-                photoTableModel.getLastAddedPhoto() != null ? photoTableModel.getLastAddedPhoto().getFile() : null);
-        List<Photo> newPhotos = directory != null
-                ? Arrays.asList(directory.listFiles((File file)
-                        -> file.getName().endsWith(".jpg") || file.getName().endsWith(".jpeg")))
-                        .stream()
-                        .map(file -> Photo.builder().file(file).build())
-                        .collect(Collectors.toList())
-                : new ArrayList<>();
+        File directory = GuiUtilities.showDirectoryChooser(this, getLastAddedPhotoFile());
+        List<Photo> newPhotos = Photo.loadPhotosFromDir(directory);
         photoTableModel.addPhotos(newPhotos);
 
 //            // remove all ready existing images
@@ -163,7 +168,7 @@ public class MainFrame extends JFrame {
     private void saveCopyMenuItemActionPerformed(ActionEvent evt) {
         System.out.println("Menu Item Save Copy");
     }
-    
+
     private void clearPhotoTableMenuItemActionPerformed(ActionEvent evt) {
         photoTableModel.clear();
     }
@@ -191,7 +196,9 @@ public class MainFrame extends JFrame {
     private void aboutMenuItemActionPerformed(ActionEvent evt) {
         System.out.println("Menu Item Global About");
     }
-
+    
+    // =========================================================================
+    // init
     // =========================================================================
     private void initMainFrame() {
 
@@ -384,5 +391,59 @@ public class MainFrame extends JFrame {
 
         photosPanel.add(searchPanel, BorderLayout.NORTH);
         photosPanel.add(tableScrollPane, BorderLayout.CENTER);
+
+        // drag and drop photos to table
+        // Adding DropTarget to the panel
+        new DropTarget(photosPanel, new DropTargetListener() {
+            @Override
+            public void dragEnter(DropTargetDragEvent dtde) {
+                // Optional: Handle drag enter event
+            }
+
+            @Override
+            public void dragOver(DropTargetDragEvent dtde) {
+                // Optional: Handle drag over event
+            }
+
+            @Override
+            public void dropActionChanged(DropTargetDragEvent dtde) {
+                // Optional: Handle drop action changed event
+            }
+
+            @Override
+            public void dragExit(DropTargetEvent dte) {
+                // Optional: Handle drag exit event
+            }
+
+            @Override
+            public void drop(DropTargetDropEvent dtde) {
+                try {
+                    // Accept the drop
+                    dtde.acceptDrop(DnDConstants.ACTION_COPY);
+
+                    // Get the dropped files
+                    Transferable transferable = dtde.getTransferable();
+                    DataFlavor[] flavors = transferable.getTransferDataFlavors();
+
+                    for (DataFlavor flavor : flavors) {
+                        if (flavor.isFlavorJavaFileListType()) {
+                            List<Photo> newPhotos = ((List<File>) transferable.getTransferData(flavor))
+                                    .stream().map(file -> file.isDirectory()
+                                    ? Photo.loadPhotosFromDir(file)
+                                    : Photo.loadPhotos(file))
+                                    .flatMap(stream -> stream.stream())
+                                    .collect(Collectors.toList());
+                            photoTableModel.addPhotos(newPhotos);
+                            break;
+                        }
+                    }
+                    
+                    // Complete the drop
+                    dtde.dropComplete(true);
+                } catch (UnsupportedFlavorException | IOException ex) {
+                    dtde.dropComplete(false);
+                }
+            }
+        });
     }
 }
