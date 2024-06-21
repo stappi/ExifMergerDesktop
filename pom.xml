@@ -11,4 +11,18 @@
         <maven.compiler.target>17</maven.compiler.target>
         <exec.mainClass>com.stappi.exifmergerdesktop.ExifMergerDesktop</exec.mainClass>
     </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.24</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>5.9.0</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 </project>

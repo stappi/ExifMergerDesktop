@@ -1,10 +1,12 @@
 package com.stappi.exifmergerdesktop.gui;
 
+import com.stappi.exifmergerdesktop.merger.Photo;
 import com.stappi.exifmergerdesktop.utilities.GuiUtilities;
 import com.stappi.exifmergerdesktop.utilities.ImageUtilities;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
@@ -16,6 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import javax.swing.*;
 
 public class MainFrame extends JFrame {
@@ -35,11 +38,13 @@ public class MainFrame extends JFrame {
     // menu
     private JMenuBar menuBar;
     private JMenu fileMenu;
+    private JMenuItem exitMenuItem;
+    private JMenu photosMenu;
     private JMenuItem openPhotosMenuItem;
     private JMenuItem openFolderMenuItem;
     private JMenuItem saveMenuItem;
     private JMenuItem saveCopyMenuItem;
-    private JMenuItem exitMenuItem;
+    private JMenuItem clearPhotoTableMenuItem;    
     private JMenu photoReferenceMenu;
     private JMenuItem loadMenuItem;
     private JMenuItem removeMenuItem;
@@ -52,15 +57,18 @@ public class MainFrame extends JFrame {
 
     // sidebar
     private JButton toggleSidebarButton;
-    
-    private List<File> photos = new ArrayList<>();
+
+    // photo panel
+    private JTable photosTable;
+    private PhotoTableModel photoTableModel;
 
     // =========================================================================
     public MainFrame() {
         initMainFrame();
+        initMenu();
         initMainPanels();
         initSideBar();
-        initMenu();
+        initPhotosPanel();
     }
 
     // =========================================================================
@@ -75,97 +83,114 @@ public class MainFrame extends JFrame {
             toggleSidebarButton.setText("<");
         }
     }
-    
-     private void openPhotosMenuItemActionPerformed(ActionEvent evt) {                                                   
+
+    private void openPhotosMenuItemActionPerformed(ActionEvent evt) {
         System.out.println("Menu Item Open Photo");
 
-        try {
-            List<File> newPhotos = GuiUtilities.showPhotosChooser(this, photos.isEmpty() ? null : photos.get(photos.size() - 1));
-            // remove all ready existing images
-            for (File file : newPhotos) {
-                // Grafik für das skalierte Bild erstellen
-                BufferedImage bufferedScaledImage = ImageUtilities.loadImage(file, 172, 172);
-                photosPanel.add(Box.createVerticalStrut(10));
-                photosPanel.setLayout(new BoxLayout(photosPanel, BoxLayout.Y_AXIS));
-                // JLabel mit dem skalierten Bild setzen
+//        try {
+        List<Photo> newPhotos = GuiUtilities.showPhotosChooser(
+                this, photoTableModel.getLastAddedPhoto() != null ? photoTableModel.getLastAddedPhoto().getFile() : null)
+                .stream()
+                .map(file -> Photo.builder().file(file).build())
+                .collect(Collectors.toList());
+        photoTableModel.addPhotos(newPhotos);
 
-                JLabel label = new JLabel(new ImageIcon(bufferedScaledImage));
-                label.setAlignmentX(Component.CENTER_ALIGNMENT);
-                photosPanel.add(label);
-                photosPanel.add(Box.createVerticalStrut(10));
-            }
-            photos.addAll(newPhotos);
+        // remove all ready existing images
+//            for (File file : newPhotos) {
+//                // Grafik für das skalierte Bild erstellen
+//                BufferedImage bufferedScaledImage = ImageUtilities.loadImage(file, 172, 172);
+//                photosPanel.add(Box.createVerticalStrut(10));
+//                photosPanel.setLayout(new BoxLayout(photosPanel, BoxLayout.Y_AXIS));
+//                // JLabel mit dem skalierten Bild setzen
+//
+//                JLabel label = new JLabel(new ImageIcon(bufferedScaledImage));
+//                label.setAlignmentX(Component.CENTER_ALIGNMENT);
+//                photosPanel.add(label);
+//                photosPanel.add(Box.createVerticalStrut(10));
+//            }
+//            photos.addAll(newPhotos);
+//
+//            // revalidate and redraw panel
+//            photosPanel.revalidate();
+//            photosPanel.repaint();
+//        } catch (IOException ex) {
+//            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+    }
 
-            // revalidate and redraw panel
-            photosPanel.revalidate();
-            photosPanel.repaint();
-        } catch (IOException ex) {
-            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }                                                  
-
-    private void openFolderMenuItemActionPerformed(ActionEvent evt) {                                                   
+    private void openFolderMenuItemActionPerformed(ActionEvent evt) {
         System.out.println("Menu Item Open Folder");
 
-        try {
-            File directory = GuiUtilities.showDirectoryChooser(this,
-                    photos.isEmpty() ? null : photos.get(photos.size() - 1));
-            List<File> newPhotos = new ArrayList<>(Arrays.asList(directory.listFiles((File file)
-                    -> file.getName().endsWith(".jpg") || file.getName().endsWith(".jpeg"))));
-            // remove all ready existing images
-            for (File file : newPhotos) {
-                // Grafik für das skalierte Bild erstellen
-                BufferedImage bufferedScaledImage = ImageUtilities.loadImage(file, 172, 172);
-                photosPanel.add(Box.createVerticalStrut(10));
-                photosPanel.setLayout(new BoxLayout(photosPanel, BoxLayout.Y_AXIS));
-                // JLabel mit dem skalierten Bild setzen
+//        try {
+        File directory = GuiUtilities.showDirectoryChooser(this,
+                photoTableModel.getLastAddedPhoto() != null ? photoTableModel.getLastAddedPhoto().getFile() : null);
+        List<Photo> newPhotos = directory != null
+                ? Arrays.asList(directory.listFiles((File file)
+                        -> file.getName().endsWith(".jpg") || file.getName().endsWith(".jpeg")))
+                        .stream()
+                        .map(file -> Photo.builder().file(file).build())
+                        .collect(Collectors.toList())
+                : new ArrayList<>();
+        photoTableModel.addPhotos(newPhotos);
 
-                JLabel label = new JLabel(new ImageIcon(bufferedScaledImage));
-                label.setAlignmentX(Component.CENTER_ALIGNMENT);
-                photosPanel.add(label);
-                photosPanel.add(Box.createVerticalStrut(10));
-            }
-            photos.addAll(newPhotos);
+//            // remove all ready existing images
+//            for (File file : newPhotos) {
+//                // Grafik für das skalierte Bild erstellen
+//                BufferedImage bufferedScaledImage = ImageUtilities.loadImage(file, 172, 172);
+//                photosPanel.add(Box.createVerticalStrut(10));
+//                photosPanel.setLayout(new BoxLayout(photosPanel, BoxLayout.Y_AXIS));
+//                // JLabel mit dem skalierten Bild setzen
+//
+//                JLabel label = new JLabel(new ImageIcon(bufferedScaledImage));
+//                label.setAlignmentX(Component.CENTER_ALIGNMENT);
+//                photosPanel.add(label);
+//                photosPanel.add(Box.createVerticalStrut(10));
+//            }
+//            photos.addAll(newPhotos);
+//
+//            // revalidate and redraw panel
+//            photosPanel.revalidate();
+//            photosPanel.repaint();
+//        } catch (IOException ex) {
+//            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+    }
 
-            // revalidate and redraw panel
-            photosPanel.revalidate();
-            photosPanel.repaint();
-        } catch (IOException ex) {
-            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }                                                  
-
-    private void saveMenuItemActionPerformed(ActionEvent evt) {                                             
+    private void saveMenuItemActionPerformed(ActionEvent evt) {
         System.out.println("Menu Item Save");
-    }                                            
+    }
 
-    private void saveCopyMenuItemActionPerformed(ActionEvent evt) {                                                 
+    private void saveCopyMenuItemActionPerformed(ActionEvent evt) {
         System.out.println("Menu Item Save Copy");
-    }                                                
+    }
+    
+    private void clearPhotoTableMenuItemActionPerformed(ActionEvent evt) {
+        photoTableModel.clear();
+    }
 
-    private void exitMenuItemActionPerformed(ActionEvent evt) {                                             
+    private void exitMenuItemActionPerformed(ActionEvent evt) {
         System.exit(0);
-    }                                            
+    }
 
-    private void loadMenuItemActionPerformed(ActionEvent evt) {                                             
+    private void loadMenuItemActionPerformed(ActionEvent evt) {
         System.out.println("Menu Item Load Photo Reference");
-    }                                            
+    }
 
-    private void removeMenuItemActionPerformed(ActionEvent evt) {                                               
+    private void removeMenuItemActionPerformed(ActionEvent evt) {
         System.out.println("Menu Item Remove Photo Reference");
-    }                                              
+    }
 
-    private void globalExifDataMenuItemActionPerformed(ActionEvent evt) {                                                       
+    private void globalExifDataMenuItemActionPerformed(ActionEvent evt) {
         System.out.println("Menu Item Global Exif Data Settings");
-    }                                                                                                        
+    }
 
-    private void helpMenuItemActionPerformed(ActionEvent evt) {                                             
+    private void helpMenuItemActionPerformed(ActionEvent evt) {
         System.out.println("Menu Item Global Help");
-    }                                            
+    }
 
-    private void aboutMenuItemActionPerformed(ActionEvent evt) {                                              
+    private void aboutMenuItemActionPerformed(ActionEvent evt) {
         System.out.println("Menu Item Global About");
-    }                      
+    }
 
     // =========================================================================
     private void initMainFrame() {
@@ -180,11 +205,13 @@ public class MainFrame extends JFrame {
         menuBar = new JMenuBar();
 
         fileMenu = new JMenu();
+        exitMenuItem = new JMenuItem();
+        photosMenu = new JMenu();
         openPhotosMenuItem = new JMenuItem();
         openFolderMenuItem = new JMenuItem();
         saveMenuItem = new JMenuItem();
         saveCopyMenuItem = new JMenuItem();
-        exitMenuItem = new JMenuItem();
+        clearPhotoTableMenuItem = new JMenuItem();
         photoReferenceMenu = new JMenu();
         loadMenuItem = new JMenuItem();
         removeMenuItem = new JMenuItem();
@@ -194,39 +221,9 @@ public class MainFrame extends JFrame {
         helpMenu = new JMenu();
         helpMenuItem = new JMenuItem();
         aboutMenuItem = new JMenuItem();
-        
+
         // file menu        
         fileMenu.setText("File");
-
-        openPhotosMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK));
-        openPhotosMenuItem.setMnemonic('o');
-        openPhotosMenuItem.setText("Open Photos");
-        openPhotosMenuItem.addActionListener((ActionEvent evt) -> {
-            openPhotosMenuItemActionPerformed(evt);
-        });
-        fileMenu.add(openPhotosMenuItem);
-
-        openFolderMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.SHIFT_DOWN_MASK | InputEvent.CTRL_DOWN_MASK));
-        openFolderMenuItem.setText("Open Folder");
-        openFolderMenuItem.addActionListener((ActionEvent evt) -> {
-            openFolderMenuItemActionPerformed(evt);
-        });
-        fileMenu.add(openFolderMenuItem);
-
-        saveMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK));
-        saveMenuItem.setMnemonic('s');
-        saveMenuItem.setText("Save");
-        saveMenuItem.addActionListener((ActionEvent evt) -> {
-            saveMenuItemActionPerformed(evt);
-        });
-        fileMenu.add(saveMenuItem);
-
-        saveCopyMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.SHIFT_DOWN_MASK | InputEvent.CTRL_DOWN_MASK));
-        saveCopyMenuItem.setText("Save Copy");
-        saveCopyMenuItem.addActionListener((ActionEvent evt) -> {
-            saveCopyMenuItemActionPerformed(evt);
-        });
-        fileMenu.add(saveCopyMenuItem);
 
         exitMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(KeyEvent.VK_F4, InputEvent.ALT_DOWN_MASK));
         exitMenuItem.setMnemonic('x');
@@ -238,16 +235,57 @@ public class MainFrame extends JFrame {
 
         menuBar.add(fileMenu);
 
-        // reference menu
-        photoReferenceMenu.setText("Photo Reference");
+        photosMenu.setText("Photos");
 
-        loadMenuItem.setText("Load Reference");
+        openPhotosMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK));
+        openPhotosMenuItem.setMnemonic('o');
+        openPhotosMenuItem.setText("Open Photos");
+        openPhotosMenuItem.addActionListener((ActionEvent evt) -> {
+            openPhotosMenuItemActionPerformed(evt);
+        });
+        photosMenu.add(openPhotosMenuItem);
+
+        openFolderMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.SHIFT_DOWN_MASK | InputEvent.CTRL_DOWN_MASK));
+        openFolderMenuItem.setText("Open Folder With Photos");
+        openFolderMenuItem.addActionListener((ActionEvent evt) -> {
+            openFolderMenuItemActionPerformed(evt);
+        });
+        photosMenu.add(openFolderMenuItem);
+
+        saveMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK));
+        saveMenuItem.setMnemonic('s');
+        saveMenuItem.setText("Save");
+        saveMenuItem.addActionListener((ActionEvent evt) -> {
+            saveMenuItemActionPerformed(evt);
+        });
+        photosMenu.add(saveMenuItem);
+
+        saveCopyMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.SHIFT_DOWN_MASK | InputEvent.CTRL_DOWN_MASK));
+        saveCopyMenuItem.setText("Save Copy");
+        saveCopyMenuItem.addActionListener((ActionEvent evt) -> {
+            saveCopyMenuItemActionPerformed(evt);
+        });
+        photosMenu.add(saveCopyMenuItem);
+
+        clearPhotoTableMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, InputEvent.SHIFT_DOWN_MASK | InputEvent.CTRL_DOWN_MASK));
+        clearPhotoTableMenuItem.setText("Remove photo list");
+        clearPhotoTableMenuItem.addActionListener((ActionEvent evt) -> {
+            clearPhotoTableMenuItemActionPerformed(evt);
+        });
+        photosMenu.add(clearPhotoTableMenuItem);
+
+        menuBar.add(photosMenu);
+
+        // reference menu
+        photoReferenceMenu.setText("Reference");
+
+        loadMenuItem.setText("Load Photo Reference");
         loadMenuItem.addActionListener((ActionEvent evt) -> {
             loadMenuItemActionPerformed(evt);
         });
         photoReferenceMenu.add(loadMenuItem);
 
-        removeMenuItem.setText("Remove Reference");
+        removeMenuItem.setText("Remove Photo Reference");
         removeMenuItem.addActionListener((ActionEvent evt) -> {
             removeMenuItemActionPerformed(evt);
         });
@@ -287,19 +325,20 @@ public class MainFrame extends JFrame {
         helpMenu.add(aboutMenuItem);
 
         menuBar.add(helpMenu);
-        
+
         // set menu bar
         setJMenuBar(menuBar);
     }
-    
+
     private void initMainPanels() {
 
         // create main panels for displaying photos and exif data: =
         verticalSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-        photosPanel = new JPanel();
+        photosPanel = new JPanel(new BorderLayout());
         exifDataPanel = new JPanel();
         verticalSplitPane.setTopComponent(photosPanel);
         verticalSplitPane.setBottomComponent(exifDataPanel);
+        verticalSplitPane.setResizeWeight(1.0);
 
         // create sidebar: |=
         horizontalSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
@@ -325,8 +364,25 @@ public class MainFrame extends JFrame {
         buttonPanel.add(toggleSidebarButton, BorderLayout.NORTH);
         sidebar.add(buttonPanel, BorderLayout.WEST);
     }
-    
+
     private void initPhotosPanel() {
-        
+        // Hinzufügen des Suchfelds und der Buttons im oberen Panel
+        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JTextField searchField = new JTextField(20);
+        JButton selectAllButton = new JButton("Select all");
+        JButton deselectAllButton = new JButton("Deselect all");
+
+        searchPanel.add(new JLabel("Search:"));
+        searchPanel.add(searchField);
+        searchPanel.add(selectAllButton);
+        searchPanel.add(deselectAllButton);
+
+        // Erstellen der Tabelle
+        photoTableModel = new PhotoTableModel();
+        photosTable = new JTable(photoTableModel);
+        JScrollPane tableScrollPane = new JScrollPane(photosTable);
+
+        photosPanel.add(searchPanel, BorderLayout.NORTH);
+        photosPanel.add(tableScrollPane, BorderLayout.CENTER);
     }
 }
