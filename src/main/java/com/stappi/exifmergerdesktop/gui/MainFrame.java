@@ -261,6 +261,8 @@ public class MainFrame extends JFrame {
             openFolderMenuItemActionPerformed(evt);
         });
         photosMenu.add(openFolderMenuItem);
+        
+        photosMenu.add(new JSeparator());
 
         saveMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK));
         saveMenuItem.setMnemonic('s');
@@ -276,6 +278,8 @@ public class MainFrame extends JFrame {
             saveCopyMenuItemActionPerformed(evt);
         });
         photosMenu.add(saveCopyMenuItem);
+        
+        photosMenu.add(new JSeparator());
 
         clearPhotoTableMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, InputEvent.SHIFT_DOWN_MASK | InputEvent.CTRL_DOWN_MASK));
         clearPhotoTableMenuItem.setText("Remove photo list");
