@@ -5,8 +5,10 @@
 package com.stappi.exifmergerdesktop.gui;
 
 import com.stappi.exifmergerdesktop.merger.Photo;
+import com.stappi.exifmergerdesktop.utilities.FileUtilities;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -19,12 +21,13 @@ import lombok.Getter;
  */
 public class PhotoTableModel extends DefaultTableModel {
 
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy");
+    private static final SimpleDateFormat DATE_TIME_FORMAT = 
+            new SimpleDateFormat("dd.MM.yyyy kk:mm:ss");
 
     private static final long BYTE_TO_MB = 1024L * 1024;
     
     private static final String[] COLUMN_NAMES = new String[]{
-        "File", "Extension", "Datum", "Aufnahmedatum", "Size"
+        "File", "Extension", "Letzte Änderung", "Aufnahmedatum", "Size"
     };
 
     private final SortedSet<Photo> photos = new TreeSet<>();
@@ -63,8 +66,8 @@ public class PhotoTableModel extends DefaultTableModel {
         setDataVector(photos.stream()
                 .map(photo -> new Object[]{
             photo.getFile().getName(),
-            "Extension",
-            "Datum",
+            FileUtilities.getExtension(photo.getFile()).orElse("?"),
+            DATE_TIME_FORMAT.format(new Date(photo.getFile().lastModified())),
             "Aufnahmedatum",
             byteToMb(photo.getFile().length())
         }).toArray(Object[][]::new), COLUMN_NAMES);

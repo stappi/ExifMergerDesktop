@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -82,7 +83,9 @@ public class MainFrame extends JFrame {
 
     // =========================================================================
     private File getLastAddedPhotoFile() {
-        return photoTableModel.getLastAddedPhoto() != null ? photoTableModel.getLastAddedPhoto().getFile() : null;
+        return Optional.ofNullable(photoTableModel.getLastAddedPhoto())
+               .map(Photo::getFile)
+               .orElse(null);
     }
     
     // =========================================================================
@@ -381,8 +384,8 @@ public class MainFrame extends JFrame {
 
         searchPanel.add(new JLabel("Search:"));
         searchPanel.add(searchField);
-        searchPanel.add(selectAllButton);
-        searchPanel.add(deselectAllButton);
+//        searchPanel.add(selectAllButton);
+//        searchPanel.add(deselectAllButton);
 
         // Erstellen der Tabelle
         photoTableModel = new PhotoTableModel();
