@@ -274,7 +274,7 @@ public class MainFrame extends JFrame {
         
         photosMenu.add(new JSeparator());
 
-        clearPhotoTableMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, InputEvent.SHIFT_DOWN_MASK | InputEvent.CTRL_DOWN_MASK));
+        clearPhotoTableMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, InputEvent.SHIFT_DOWN_MASK | InputEvent.CTRL_DOWN_MASK));
         clearPhotoTableMenuItem.setText("Clear photo list");
         clearPhotoTableMenuItem.addActionListener((ActionEvent evt) -> {
             clearPhotoTableMenuItemActionPerformed(evt);
