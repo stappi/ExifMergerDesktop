@@ -2,9 +2,7 @@ package com.stappi.exifmergerdesktop.gui;
 
 import com.stappi.exifmergerdesktop.merger.Photo;
 import com.stappi.exifmergerdesktop.utilities.GuiUtilities;
-import com.stappi.exifmergerdesktop.utilities.ImageUtilities;
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.datatransfer.DataFlavor;
@@ -19,15 +17,10 @@ import java.awt.dnd.DropTargetListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.swing.*;
 
@@ -282,7 +275,7 @@ public class MainFrame extends JFrame {
         photosMenu.add(new JSeparator());
 
         clearPhotoTableMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, InputEvent.SHIFT_DOWN_MASK | InputEvent.CTRL_DOWN_MASK));
-        clearPhotoTableMenuItem.setText("Remove photo list");
+        clearPhotoTableMenuItem.setText("Clear photo list");
         clearPhotoTableMenuItem.addActionListener((ActionEvent evt) -> {
             clearPhotoTableMenuItemActionPerformed(evt);
         });
