@@ -7,6 +7,7 @@ package com.stappi.exifmergerdesktop.utilities;
 
 import java.awt.Component;
 import java.awt.GridBagConstraints;
+import java.awt.Insets;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -18,6 +19,7 @@ import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -58,20 +60,26 @@ public final class GuiUtilities {
     public static void addCaptionRowToGrid(JPanel panel, String labelText, 
             GridBagConstraints constraints, int row) {
         
+        constraints.insets = new Insets(15, 5, 5, 5);    
         constraints.gridy = row;
         constraints.gridx = 0;
         constraints.gridwidth = GRID_LAYOUT_WIDTH;        
-        JLabel captionLabel = new JLabel("File Info");
+        JLabel captionLabel = new JLabel(labelText);
+        captionLabel.setFont(new java.awt.Font("Segoe UI", 1, 14));         
         panel.add(captionLabel, constraints);
-        row++;
+        
+        constraints.insets = new Insets(40, 5, 5, 5);  
+        panel.add(new JSeparator(), constraints);    
     }
     
     public static void addRowToGrid(JPanel panel, String labelText, 
             JComponent component, GridBagConstraints constraints, int row) {
         
+        constraints.insets = new Insets(5, 5, 5, 5);        
+        constraints.gridy = row;
+        
         // add label
         constraints.gridx = 0;
-        constraints.gridy = row;
         constraints.gridwidth = 1;     
         JLabel label = new JLabel(labelText);
         panel.add(label, constraints);

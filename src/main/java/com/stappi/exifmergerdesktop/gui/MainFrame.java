@@ -530,8 +530,7 @@ public class MainFrame extends JFrame {
 
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.insets = new Insets(5, 5, 5, 5);
-
+        
         int currentRow = 0;
         currentRow = initExifDataPanelAddFileInfos(dataPanel, constraints, currentRow);
         currentRow = initExifDataPanelAddDescriptionInfos(dataPanel, constraints, currentRow);
