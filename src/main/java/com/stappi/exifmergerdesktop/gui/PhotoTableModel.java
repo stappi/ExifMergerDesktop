@@ -6,19 +6,13 @@ package com.stappi.exifmergerdesktop.gui;
 
 import com.stappi.exifmergerdesktop.merger.Photo;
 import com.stappi.exifmergerdesktop.utilities.FileUtilities;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import javax.swing.table.DefaultTableModel;
-import lombok.Getter;
 
 /**
  *
@@ -32,7 +26,6 @@ public class PhotoTableModel extends DefaultTableModel {
 
     private List<Photo> photos;
 
-    @Getter
     private Photo lastAddedPhoto;
 
     public PhotoTableModel() {
@@ -41,6 +34,10 @@ public class PhotoTableModel extends DefaultTableModel {
 
     public PhotoTableModel(List<Photo> photos) {
         setPhotos(photos);
+    }
+    
+    public Photo getLastAddedPhoto() {
+        return lastAddedPhoto;
     }
 
     public void addPhotos(List<Photo> newPhotos) {

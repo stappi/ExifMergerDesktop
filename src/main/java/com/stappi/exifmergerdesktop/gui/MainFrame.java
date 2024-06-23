@@ -138,64 +138,15 @@ public class MainFrame extends JFrame {
     }
 
     private void openPhotosMenuItemActionPerformed(ActionEvent evt) {
-        System.out.println("Menu Item Open Photo");
-
-//        try {
-        List<Photo> newPhotos = Photo.loadPhotos(GuiUtilities.showPhotosChooser(this, getLastAddedPhotoFile()));
+        List<Photo> newPhotos = Photo.loadPhotos(
+                GuiUtilities.showPhotosChooser(this, getLastAddedPhotoFile()));
         photoTableModel.addPhotos(newPhotos);
-
-        // remove all ready existing images
-//            for (File file : newPhotos) {
-//                // Grafik für das skalierte Bild erstellen
-//                BufferedImage bufferedScaledImage = ImageUtilities.loadImage(file, 172, 172);
-//                photosPanel.add(Box.createVerticalStrut(10));
-//                photosPanel.setLayout(new BoxLayout(photosPanel, BoxLayout.Y_AXIS));
-//                // JLabel mit dem skalierten Bild setzen
-//
-//                JLabel label = new JLabel(new ImageIcon(bufferedScaledImage));
-//                label.setAlignmentX(Component.CENTER_ALIGNMENT);
-//                photosPanel.add(label);
-//                photosPanel.add(Box.createVerticalStrut(10));
-//            }
-//            photos.addAll(newPhotos);
-//
-//            // revalidate and redraw panel
-//            photosPanel.revalidate();
-//            photosPanel.repaint();
-//        } catch (IOException ex) {
-//            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
-//        }
     }
 
     private void openFolderMenuItemActionPerformed(ActionEvent evt) {
-        System.out.println("Menu Item Open Folder");
-
-//        try {
         File directory = GuiUtilities.showDirectoryChooser(this, getLastAddedPhotoFile());
         List<Photo> newPhotos = Photo.loadPhotosFromDir(directory);
         photoTableModel.addPhotos(newPhotos);
-
-//            // remove all ready existing images
-//            for (File file : newPhotos) {
-//                // Grafik für das skalierte Bild erstellen
-//                BufferedImage bufferedScaledImage = ImageUtilities.loadImage(file, 172, 172);
-//                photosPanel.add(Box.createVerticalStrut(10));
-//                photosPanel.setLayout(new BoxLayout(photosPanel, BoxLayout.Y_AXIS));
-//                // JLabel mit dem skalierten Bild setzen
-//
-//                JLabel label = new JLabel(new ImageIcon(bufferedScaledImage));
-//                label.setAlignmentX(Component.CENTER_ALIGNMENT);
-//                photosPanel.add(label);
-//                photosPanel.add(Box.createVerticalStrut(10));
-//            }
-//            photos.addAll(newPhotos);
-//
-//            // revalidate and redraw panel
-//            photosPanel.revalidate();
-//            photosPanel.repaint();
-//        } catch (IOException ex) {
-//            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
-//        }
     }
 
     private void saveMenuItemActionPerformed(ActionEvent evt) {
@@ -242,6 +193,9 @@ public class MainFrame extends JFrame {
         fileLengthLabel.setText(photo.getLength());
         lastModifiedLabel.setText(photo.getLastModified());
         changeDateLabel.setText(photo.getCreationTime());
+        
+        recordingDateComboBox.setModel(new DefaultComboBoxModel(photo.getRecordingDateTimeValues()));
+        recordingDateComboBox.setSelectedIndex(0);
 
         GuiUtilities.setImageToLabel(imageLabel, photo.getFile(), 240, 240);
     }
@@ -639,6 +593,7 @@ public class MainFrame extends JFrame {
 
         authorsComboBox = new JComboBox();
         recordingDateComboBox = new JComboBox();
+        recordingDateComboBox.setEditable(true);
         softwareNameComboBox = new JComboBox();
         entryDateComboBox = new JComboBox();
         copyRightComboBox = new JComboBox();
