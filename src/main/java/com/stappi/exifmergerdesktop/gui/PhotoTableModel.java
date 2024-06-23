@@ -9,9 +9,14 @@ import com.stappi.exifmergerdesktop.utilities.FileUtilities;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import javax.swing.table.DefaultTableModel;
 import lombok.Getter;
 
@@ -21,17 +26,12 @@ import lombok.Getter;
  */
 public class PhotoTableModel extends DefaultTableModel {
 
-    private static final SimpleDateFormat DATE_TIME_FORMAT = 
-            new SimpleDateFormat("dd.MM.yyyy kk:mm:ss");
-
-    private static final long BYTE_TO_MB = 1024L * 1024;
-    
     private static final String[] COLUMN_NAMES = new String[]{
-        "File", "Extension", "Letzte Änderung", "Aufnahmedatum", "Size"
+        "File", "Extension", "Letzte Änderung", "Size"
     };
 
-    private final SortedSet<Photo> photos = new TreeSet<>();
-    
+    private List<Photo> photos;
+
     @Getter
     private Photo lastAddedPhoto;
 
@@ -58,22 +58,27 @@ public class PhotoTableModel extends DefaultTableModel {
     public boolean isCellEditable(int row, int column) {
         return false;
     }
-    
+
+    public Photo getPhotoAt(int index) {
+        return this.photos.get(index);
+    }
+
     private void setPhotos(List<Photo> newPhotos) {
-        this.photos.addAll(newPhotos);
-        this.lastAddedPhoto = !newPhotos.isEmpty() 
+
+        this.lastAddedPhoto = !newPhotos.isEmpty()
                 ? newPhotos.get(newPhotos.size() - 1) : null;
+
+        Set<Photo> uniquePhotos = new HashSet(Optional.ofNullable(this.photos).orElse(new ArrayList()));
+        uniquePhotos.addAll(Optional.ofNullable(newPhotos).orElse(new ArrayList()));
+        this.photos = uniquePhotos.stream().collect(Collectors.toList());
+
         setDataVector(photos.stream()
                 .map(photo -> new Object[]{
             photo.getFile().getName(),
             FileUtilities.getExtension(photo.getFile()).orElse("?"),
-            DATE_TIME_FORMAT.format(new Date(photo.getFile().lastModified())),
-            "Aufnahmedatum",
-            byteToMb(photo.getFile().length())
+            photo.getLastModified(),
+            photo.getLength()
         }).toArray(Object[][]::new), COLUMN_NAMES);
     }
-    
-    private String byteToMb(long bytes) {
-        return Math.round(bytes * 100.0 / BYTE_TO_MB) / 100.0 + " MB";                
-    }
+
 }

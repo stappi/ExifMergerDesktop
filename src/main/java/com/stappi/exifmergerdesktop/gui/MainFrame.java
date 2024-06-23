@@ -1,10 +1,15 @@
 package com.stappi.exifmergerdesktop.gui;
 
 import com.stappi.exifmergerdesktop.merger.Photo;
+import com.stappi.exifmergerdesktop.utilities.FileUtilities;
 import com.stappi.exifmergerdesktop.utilities.GuiUtilities;
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -19,10 +24,17 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
 
 public class MainFrame extends JFrame {
 
@@ -30,6 +42,9 @@ public class MainFrame extends JFrame {
     private static final int MAIN_FRAME_HEIGHT = 600;
     private static final int SIDEBAR_MIN_WIDTH = 50;
     private static final int SIDEBAR_MAX_WIDTH = 200;
+    
+    private static final String IMG_NOT_SET = "images/img_not_set.png";
+    private static final String IMG_REFERENCE_NOT_SET = "images/img_ref_not_set.png";
 
     // main panels
     private JSplitPane verticalSplitPane;
@@ -62,8 +77,33 @@ public class MainFrame extends JFrame {
     private JButton toggleSidebarButton;
 
     // photo panel
-    private JTable photosTable;
     private PhotoTableModel photoTableModel;
+
+    // exif panel
+    private JTextField fileNameTextField;
+    private JLabel directoryLabel;
+    private JLabel fileTypeLabel;
+    private JLabel fileLengthLabel;
+    private JLabel lastModifiedLabel;
+    private JLabel changeDateLabel;
+
+    private JComboBox titleComboBox;
+    private JComboBox subjectComboBox;
+    private JComboBox ratingComboBox;
+    private JComboBox markingComboBox;
+    private JComboBox commentsComboBox;
+
+    private JComboBox authorsComboBox;
+    private JComboBox recordingDateComboBox;
+    private JComboBox softwareNameComboBox;
+    private JComboBox entryDateComboBox;
+    private JComboBox copyRightComboBox;
+
+    private JLabel imageLabel;
+    private JLabel referenceLabel;
+    private JButton openReferenceButton;
+    private JButton adjustReferenceButton;
+    private JButton removeReferenceButton;
 
     // =========================================================================
     public MainFrame() {
@@ -72,15 +112,16 @@ public class MainFrame extends JFrame {
         initMainPanels();
         initSideBar();
         initPhotosPanel();
+        initExifDataPanel();
     }
 
     // =========================================================================
     private File getLastAddedPhotoFile() {
         return Optional.ofNullable(photoTableModel.getLastAddedPhoto())
-               .map(Photo::getFile)
-               .orElse(null);
+                .map(Photo::getFile)
+                .orElse(null);
     }
-    
+
     // =========================================================================
     // listener
     // =========================================================================
@@ -192,7 +233,33 @@ public class MainFrame extends JFrame {
     private void aboutMenuItemActionPerformed(ActionEvent evt) {
         System.out.println("Menu Item Global About");
     }
-    
+
+    private void setExifDataForSelectedPhoto(Photo photo) throws IOException {
+
+        fileNameTextField.setText(photo.getFile().getName());
+        directoryLabel.setText(photo.getFile().getParent());
+        fileTypeLabel.setText(FileUtilities.getExtension(photo.getFile()).orElse("?"));
+        fileLengthLabel.setText(photo.getLength());
+        lastModifiedLabel.setText(photo.getLastModified());
+        changeDateLabel.setText(photo.getCreationTime());
+
+        GuiUtilities.setImageToLabel(imageLabel, photo.getFile(), 240, 240);
+    }
+
+    private File loadImageFromResources(String path) throws IOException {
+        try (InputStream inputStream
+                = MainFrame.class.getClassLoader().getResourceAsStream(path)) {
+            if (inputStream == null) {
+                throw new IllegalArgumentException("File not found: " + path);
+            }
+
+            // Create a temporary file
+            Path tempFile = Files.createTempFile("tempFile", ".tmp");
+            Files.copy(inputStream, tempFile, StandardCopyOption.REPLACE_EXISTING);
+            return tempFile.toFile();
+        }
+    }
+
     // =========================================================================
     // init
     // =========================================================================
@@ -254,7 +321,7 @@ public class MainFrame extends JFrame {
             openFolderMenuItemActionPerformed(evt);
         });
         photosMenu.add(openFolderMenuItem);
-        
+
         photosMenu.add(new JSeparator());
 
         saveMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK));
@@ -271,7 +338,7 @@ public class MainFrame extends JFrame {
             saveCopyMenuItemActionPerformed(evt);
         });
         photosMenu.add(saveCopyMenuItem);
-        
+
         photosMenu.add(new JSeparator());
 
         clearPhotoTableMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, InputEvent.SHIFT_DOWN_MASK | InputEvent.CTRL_DOWN_MASK));
@@ -342,10 +409,10 @@ public class MainFrame extends JFrame {
         // create main panels for displaying photos and exif data: =
         verticalSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
         photosPanel = new JPanel(new BorderLayout());
-        exifDataPanel = new JPanel();
+        exifDataPanel = new JPanel(new BorderLayout());
         verticalSplitPane.setTopComponent(photosPanel);
         verticalSplitPane.setBottomComponent(exifDataPanel);
-        verticalSplitPane.setResizeWeight(1.0);
+//        verticalSplitPane.setResizeWeight(1.0); // photosPanel height grows higher with main frame
 
         // create sidebar: |=
         horizontalSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
@@ -357,7 +424,7 @@ public class MainFrame extends JFrame {
 
         // set default position
         horizontalSplitPane.setDividerLocation(200);
-        verticalSplitPane.setDividerLocation(300);
+        verticalSplitPane.setDividerLocation(getHeight() - 475);
 
         getContentPane().add(horizontalSplitPane);
     }
@@ -386,7 +453,17 @@ public class MainFrame extends JFrame {
 
         // Erstellen der Tabelle
         photoTableModel = new PhotoTableModel();
-        photosTable = new JTable(photoTableModel);
+        JTable photosTable = new JTable(photoTableModel);
+        photosTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        photosTable.getSelectionModel().addListSelectionListener((ListSelectionEvent event) -> {
+            if (!event.getValueIsAdjusting() && photosTable.getSelectedRow() != -1) {
+                try {
+                    setExifDataForSelectedPhoto(photoTableModel.getPhotoAt(photosTable.getSelectedRow()));
+                } catch (IOException ex) {
+                    Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        });
         JScrollPane tableScrollPane = new JScrollPane(photosTable);
 
         photosPanel.add(searchPanel, BorderLayout.NORTH);
@@ -437,7 +514,7 @@ public class MainFrame extends JFrame {
                             break;
                         }
                     }
-                    
+
                     // Complete the drop
                     dtde.dropComplete(true);
                 } catch (UnsupportedFlavorException | IOException ex) {
@@ -445,5 +522,161 @@ public class MainFrame extends JFrame {
                 }
             }
         });
+    }
+
+    private void initExifDataPanel() {
+
+        JPanel dataPanel = new JPanel();
+        dataPanel.setLayout(new BoxLayout(dataPanel, BoxLayout.Y_AXIS));
+
+        dataPanel.add(initExifDataFilePanel());
+        dataPanel.add(initExifDataDescriptionPanel());
+        dataPanel.add(initExifDataSourcePanel());
+
+        JScrollPane dataScrollPane = new JScrollPane(dataPanel);
+
+        // images (original and reference if exists)
+        JPanel imageViewPanel = new JPanel();
+        imageViewPanel.setLayout(new BoxLayout(imageViewPanel, BoxLayout.Y_AXIS));
+
+        imageViewPanel.add(Box.createVerticalStrut(10));
+
+        imageLabel = new JLabel();
+        imageLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        try {
+            GuiUtilities.setImageToLabel(imageLabel, loadImageFromResources(IMG_NOT_SET), 240, 240);
+        } catch (IOException ex) {
+            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        imageViewPanel.add(imageLabel);
+
+        imageViewPanel.add(Box.createVerticalStrut(10));
+        
+        imageViewPanel.add(new JLabel("Reference Photo"));
+        
+        referenceLabel = new JLabel();
+        referenceLabel.setAlignmentX(Component.CENTER_ALIGNMENT);        
+        try {
+            GuiUtilities.setImageToLabel(referenceLabel, loadImageFromResources(IMG_REFERENCE_NOT_SET), 240, 240);
+        } catch (IOException ex) {
+            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        imageViewPanel.add(referenceLabel);
+
+        JPanel manageReferencePanel = new JPanel();
+        manageReferencePanel.setLayout(new BoxLayout(manageReferencePanel, BoxLayout.X_AXIS));
+        openReferenceButton = new JButton("O");
+        adjustReferenceButton = new JButton("E");
+        removeReferenceButton = new JButton("R");
+        manageReferencePanel.add(openReferenceButton);
+        manageReferencePanel.add(adjustReferenceButton);
+        manageReferencePanel.add(removeReferenceButton);
+        imageViewPanel.add(manageReferencePanel);
+        
+        imageViewPanel.setPreferredSize(new Dimension(250, 0));
+
+        // add panels
+        exifDataPanel.add(dataScrollPane, BorderLayout.CENTER);
+        exifDataPanel.add(imageViewPanel, BorderLayout.EAST);
+    }
+
+    private JPanel initExifDataFilePanel() {
+
+        JPanel filePanel = new JPanel(new GridBagLayout());
+        filePanel.setBorder(BorderFactory.createTitledBorder("File"));
+
+        fileNameTextField = new JTextField(25);
+        directoryLabel = new JLabel();
+        fileTypeLabel = new JLabel();
+        fileLengthLabel = new JLabel();
+        lastModifiedLabel = new JLabel();
+        changeDateLabel = new JLabel();
+
+        GridBagConstraints constraints = new GridBagConstraints();
+        constraints.insets = new Insets(5, 5, 5, 5);
+
+        // Methode zum Hinzufügen einer Zeile mit Label, Textfeld und optionalem Button
+        GuiUtilities.addRowToGrid(filePanel, "Filename:", fileNameTextField, constraints);
+        GuiUtilities.addRowToGrid(filePanel, "Directory:", directoryLabel, constraints);
+        GuiUtilities.addRowToGrid(filePanel, "Filetype:", fileTypeLabel, constraints);
+        GuiUtilities.addRowToGrid(filePanel, "Length:", fileLengthLabel, constraints);
+        GuiUtilities.addRowToGrid(filePanel, "Last Modified:", lastModifiedLabel, constraints);
+        GuiUtilities.addRowToGrid(filePanel, "Creation Time:", changeDateLabel, constraints);
+
+        // Platzhalter-Komponente hinzufügen, um das Grid nach oben links zu schieben
+        constraints.gridx = 0;
+        constraints.gridy = GridBagConstraints.RELATIVE;
+        constraints.gridwidth = 3; // Reicht über alle Spalten
+        constraints.weightx = 1.0;
+        constraints.weighty = 1.0;
+        constraints.fill = GridBagConstraints.BOTH;
+        filePanel.add(new JPanel(), constraints);
+
+        return filePanel;
+    }
+
+    private JPanel initExifDataDescriptionPanel() {
+
+        JPanel descriptionPanel = new JPanel(new GridBagLayout());
+        descriptionPanel.setBorder(BorderFactory.createTitledBorder("Description"));
+        
+        titleComboBox = new JComboBox();
+        subjectComboBox = new JComboBox();
+        ratingComboBox = new JComboBox();
+        markingComboBox = new JComboBox();
+        commentsComboBox = new JComboBox();
+
+        GridBagConstraints constraints = new GridBagConstraints();
+        constraints.insets = new Insets(5, 5, 5, 5);
+
+        // Methode zum Hinzufügen einer Zeile mit Label, Textfeld und optionalem Button
+        GuiUtilities.addRowToGrid(descriptionPanel, "Title:", titleComboBox, constraints);
+        GuiUtilities.addRowToGrid(descriptionPanel, "Subject:", subjectComboBox, constraints);
+        GuiUtilities.addRowToGrid(descriptionPanel, "Rating:", ratingComboBox, constraints);
+        GuiUtilities.addRowToGrid(descriptionPanel, "Marking:", markingComboBox, constraints);
+        GuiUtilities.addRowToGrid(descriptionPanel, "Comments:", commentsComboBox, constraints);
+
+        // Platzhalter-Komponente hinzufügen, um das Grid nach oben links zu schieben
+        constraints.gridx = 0;
+        constraints.gridy = GridBagConstraints.RELATIVE;
+        constraints.gridwidth = 3; // Reicht über alle Spalten
+        constraints.weightx = 1.0;
+        constraints.weighty = 1.0;
+        constraints.fill = GridBagConstraints.BOTH;
+        descriptionPanel.add(new JPanel(), constraints);
+
+        return descriptionPanel;
+    }
+
+    private JPanel initExifDataSourcePanel() {
+        JPanel sourcePanel = new JPanel(new GridBagLayout());
+        sourcePanel.setBorder(BorderFactory.createTitledBorder("Source"));
+        
+        authorsComboBox = new JComboBox();
+        recordingDateComboBox = new JComboBox();
+        softwareNameComboBox = new JComboBox();
+        entryDateComboBox = new JComboBox();
+        copyRightComboBox = new JComboBox();
+
+        GridBagConstraints constraints = new GridBagConstraints();
+        constraints.insets = new Insets(5, 5, 5, 5);
+
+        // Methode zum Hinzufügen einer Zeile mit Label, Textfeld und optionalem Button
+        GuiUtilities.addRowToGrid(sourcePanel, "Authors:", authorsComboBox, constraints);
+        GuiUtilities.addRowToGrid(sourcePanel, "Recording Date:", recordingDateComboBox, constraints);
+        GuiUtilities.addRowToGrid(sourcePanel, "Software:", softwareNameComboBox, constraints);
+        GuiUtilities.addRowToGrid(sourcePanel, "Entry Date:", entryDateComboBox, constraints);
+        GuiUtilities.addRowToGrid(sourcePanel, "Copyright:", copyRightComboBox, constraints);
+
+        // Platzhalter-Komponente hinzufügen, um das Grid nach oben links zu schieben
+        constraints.gridx = 0;
+        constraints.gridy = GridBagConstraints.RELATIVE;
+        constraints.gridwidth = 3; // Reicht über alle Spalten
+        constraints.weightx = 1.0;
+        constraints.weighty = 1.0;
+        constraints.fill = GridBagConstraints.BOTH;
+        sourcePanel.add(new JPanel(), constraints);
+
+        return sourcePanel;
     }
 }
