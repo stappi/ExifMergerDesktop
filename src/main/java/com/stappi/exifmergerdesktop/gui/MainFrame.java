@@ -193,7 +193,7 @@ public class MainFrame extends JFrame {
         fileLengthLabel.setText(photo.getLength());
         lastModifiedLabel.setText(photo.getLastModified());
         changeDateLabel.setText(photo.getCreationTime());
-        
+
         recordingDateComboBox.setModel(new DefaultComboBoxModel(photo.getRecordingDateTimeValues()));
         recordingDateComboBox.setSelectedIndex(0);
 
@@ -424,7 +424,6 @@ public class MainFrame extends JFrame {
         photosPanel.add(tableScrollPane, BorderLayout.CENTER);
 
         // drag and drop photos to table
-        // Adding DropTarget to the panel
         new DropTarget(photosPanel, new DropTargetListener() {
             @Override
             public void dragEnter(DropTargetDragEvent dtde) {
@@ -484,7 +483,7 @@ public class MainFrame extends JFrame {
 
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
-        
+
         int currentRow = 0;
         currentRow = initExifDataPanelAddFileInfos(dataPanel, constraints, currentRow);
         currentRow = initExifDataPanelAddDescriptionInfos(dataPanel, constraints, currentRow);
@@ -527,6 +526,64 @@ public class MainFrame extends JFrame {
         } catch (IOException ex) {
             Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
+        // drag and drop photos to table
+        new DropTarget(referenceLabel, new DropTargetListener() {
+
+            @Override
+            public void dragEnter(DropTargetDragEvent dtde) {
+                // Optional: Handle drag enter event
+            }
+
+            @Override
+            public void dragOver(DropTargetDragEvent dtde) {
+                // Optional: Handle drag over event
+            }
+
+            @Override
+            public void dropActionChanged(DropTargetDragEvent dtde) {
+                // Optional: Handle drop action changed event
+            }
+
+            @Override
+            public void dragExit(DropTargetEvent dte) {
+                // Optional: Handle drag exit event
+            }
+
+            @Override
+            public void drop(DropTargetDropEvent dtde) {
+                try {
+                    // Accept the drop
+                    dtde.acceptDrop(DnDConstants.ACTION_COPY);
+
+                    // Get the dropped files
+                    Transferable transferable = dtde.getTransferable();
+                    DataFlavor[] flavors = transferable.getTransferDataFlavors();
+
+                    for (DataFlavor flavor : flavors) {
+                        if (flavor.isFlavorJavaFileListType()) {
+
+                            ((List<File>) transferable.getTransferData(flavor))
+                                    .stream()
+                                    .findFirst()
+                                    .ifPresent(referencePhoto -> {
+                                        try {
+                                            GuiUtilities.setImageToLabel(referenceLabel, referencePhoto, 240, 240);
+                                            //TODO set reference photo
+                                        } catch (IOException ex) {
+                                            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+                                        }
+                                    });
+                            break;
+                        }
+                    }
+
+                    // Complete the drop
+                    dtde.dropComplete(true);
+                } catch (UnsupportedFlavorException | IOException ex) {
+                    dtde.dropComplete(false);
+                }
+            }
+        });
         imageViewPanel.add(referenceLabel);
 
         JPanel manageReferencePanel = new JPanel();
@@ -540,10 +597,12 @@ public class MainFrame extends JFrame {
         imageViewPanel.add(manageReferencePanel);
 
         imageViewPanel.setPreferredSize(new Dimension(250, 0));
+        
+        JScrollPane imageViewScrollPane = new JScrollPane(imageViewPanel);
 
         // add panels
         exifDataPanel.add(dataScrollPane, BorderLayout.CENTER);
-        exifDataPanel.add(imageViewPanel, BorderLayout.EAST);
+        exifDataPanel.add(imageViewScrollPane, BorderLayout.EAST);
     }
 
     private int initExifDataPanelAddFileInfos(JPanel parentPanel,
@@ -568,7 +627,7 @@ public class MainFrame extends JFrame {
         return row;
     }
 
-    private int initExifDataPanelAddDescriptionInfos(JPanel parentPanel, 
+    private int initExifDataPanelAddDescriptionInfos(JPanel parentPanel,
             GridBagConstraints constraints, int row) {
 
         titleComboBox = new JComboBox();
@@ -576,7 +635,7 @@ public class MainFrame extends JFrame {
         ratingComboBox = new JComboBox();
         markingComboBox = new JComboBox();
         commentsComboBox = new JComboBox();
-        
+
         GuiUtilities.addCaptionRowToGrid(parentPanel, "Description", constraints, row++);
 
         GuiUtilities.addRowToGrid(parentPanel, "Title:", titleComboBox, constraints, row++);
@@ -597,7 +656,7 @@ public class MainFrame extends JFrame {
         softwareNameComboBox = new JComboBox();
         entryDateComboBox = new JComboBox();
         copyRightComboBox = new JComboBox();
-        
+
         GuiUtilities.addCaptionRowToGrid(parentPanel, "Source", constraints, row++);
 
         // Methode zum Hinzufügen einer Zeile mit Label, Textfeld und optionalem Button
@@ -606,7 +665,7 @@ public class MainFrame extends JFrame {
         GuiUtilities.addRowToGrid(parentPanel, "Software:", softwareNameComboBox, constraints, row++);
         GuiUtilities.addRowToGrid(parentPanel, "Entry Date:", entryDateComboBox, constraints, row++);
         GuiUtilities.addRowToGrid(parentPanel, "Copyright:", copyRightComboBox, constraints, row++);
-        
+
         return row;
     }
 }
