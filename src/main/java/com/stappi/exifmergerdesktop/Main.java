@@ -11,7 +11,7 @@ import javax.swing.SwingUtilities;
  *
  * @author Michael Stappert
  */
-public class ExifMergerDesktop {
+public class Main {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {

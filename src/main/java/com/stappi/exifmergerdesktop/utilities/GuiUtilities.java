@@ -27,6 +27,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  */
 public final class GuiUtilities {
     
+    private static final int GRID_LAYOUT_WIDTH = 5;
     
     public static List<File> showPhotosChooser(Component parent, File currentDir) {
         
@@ -54,19 +55,30 @@ public final class GuiUtilities {
                 : null;
     }
     
-    public static void addRowToGrid(JPanel panel, String labelText, 
-            JComponent component, GridBagConstraints constraints) {
+    public static void addCaptionRowToGrid(JPanel panel, String labelText, 
+            GridBagConstraints constraints, int row) {
         
+        constraints.gridy = row;
         constraints.gridx = 0;
-        constraints.gridy = GridBagConstraints.RELATIVE;
-        constraints.anchor = GridBagConstraints.WEST;
-        constraints.weightx = 0;
-        constraints.weighty = 0;
-
-        panel.add(new JLabel(labelText), constraints);
-
+        constraints.gridwidth = GRID_LAYOUT_WIDTH;        
+        JLabel captionLabel = new JLabel("File Info");
+        panel.add(captionLabel, constraints);
+        row++;
+    }
+    
+    public static void addRowToGrid(JPanel panel, String labelText, 
+            JComponent component, GridBagConstraints constraints, int row) {
+        
+        // add label
+        constraints.gridx = 0;
+        constraints.gridy = row;
+        constraints.gridwidth = 1;     
+        JLabel label = new JLabel(labelText);
+        panel.add(label, constraints);
+        
+        // add component
         constraints.gridx = 1;
-        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.gridwidth = GRID_LAYOUT_WIDTH - 1; 
         panel.add(component, constraints);
     }
     

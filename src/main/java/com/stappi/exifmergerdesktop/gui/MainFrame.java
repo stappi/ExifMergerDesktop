@@ -42,7 +42,7 @@ public class MainFrame extends JFrame {
     private static final int MAIN_FRAME_HEIGHT = 600;
     private static final int SIDEBAR_MIN_WIDTH = 50;
     private static final int SIDEBAR_MAX_WIDTH = 200;
-    
+
     private static final String IMG_NOT_SET = "images/img_not_set.png";
     private static final String IMG_REFERENCE_NOT_SET = "images/img_ref_not_set.png";
 
@@ -526,12 +526,25 @@ public class MainFrame extends JFrame {
 
     private void initExifDataPanel() {
 
-        JPanel dataPanel = new JPanel();
-        dataPanel.setLayout(new BoxLayout(dataPanel, BoxLayout.Y_AXIS));
+        JPanel dataPanel = new JPanel(new GridBagLayout());
 
-        dataPanel.add(initExifDataFilePanel());
-        dataPanel.add(initExifDataDescriptionPanel());
-        dataPanel.add(initExifDataSourcePanel());
+        GridBagConstraints constraints = new GridBagConstraints();
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.insets = new Insets(5, 5, 5, 5);
+
+        int currentRow = 0;
+        currentRow = initExifDataPanelAddFileInfos(dataPanel, constraints, currentRow);
+        currentRow = initExifDataPanelAddDescriptionInfos(dataPanel, constraints, currentRow);
+        initExifDataPanelAddSourceInfos(dataPanel, constraints, currentRow);
+
+        // Platzhalter-Komponente hinzufügen, um das Grid nach oben links zu schieben
+        constraints.gridx = 0;
+        constraints.gridy = GridBagConstraints.RELATIVE;
+        constraints.gridwidth = 3; // Reicht über alle Spalten
+        constraints.weightx = 1.0;
+        constraints.weighty = 1.0;
+        constraints.fill = GridBagConstraints.BOTH;
+        dataPanel.add(new JPanel(), constraints);
 
         JScrollPane dataScrollPane = new JScrollPane(dataPanel);
 
@@ -551,11 +564,11 @@ public class MainFrame extends JFrame {
         imageViewPanel.add(imageLabel);
 
         imageViewPanel.add(Box.createVerticalStrut(10));
-        
+
         imageViewPanel.add(new JLabel("Reference Photo"));
-        
+
         referenceLabel = new JLabel();
-        referenceLabel.setAlignmentX(Component.CENTER_ALIGNMENT);        
+        referenceLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         try {
             GuiUtilities.setImageToLabel(referenceLabel, loadImageFromResources(IMG_REFERENCE_NOT_SET), 240, 240);
         } catch (IOException ex) {
@@ -572,7 +585,7 @@ public class MainFrame extends JFrame {
         manageReferencePanel.add(adjustReferenceButton);
         manageReferencePanel.add(removeReferenceButton);
         imageViewPanel.add(manageReferencePanel);
-        
+
         imageViewPanel.setPreferredSize(new Dimension(250, 0));
 
         // add panels
@@ -580,103 +593,66 @@ public class MainFrame extends JFrame {
         exifDataPanel.add(imageViewPanel, BorderLayout.EAST);
     }
 
-    private JPanel initExifDataFilePanel() {
+    private int initExifDataPanelAddFileInfos(JPanel parentPanel,
+            GridBagConstraints constraints, int row) {
 
-        JPanel filePanel = new JPanel(new GridBagLayout());
-        filePanel.setBorder(BorderFactory.createTitledBorder("File"));
-
-        fileNameTextField = new JTextField(25);
+        fileNameTextField = new JTextField();
         directoryLabel = new JLabel();
         fileTypeLabel = new JLabel();
         fileLengthLabel = new JLabel();
         lastModifiedLabel = new JLabel();
         changeDateLabel = new JLabel();
 
-        GridBagConstraints constraints = new GridBagConstraints();
-        constraints.insets = new Insets(5, 5, 5, 5);
+        GuiUtilities.addCaptionRowToGrid(parentPanel, "File Info", constraints, row++);
 
-        // Methode zum Hinzufügen einer Zeile mit Label, Textfeld und optionalem Button
-        GuiUtilities.addRowToGrid(filePanel, "Filename:", fileNameTextField, constraints);
-        GuiUtilities.addRowToGrid(filePanel, "Directory:", directoryLabel, constraints);
-        GuiUtilities.addRowToGrid(filePanel, "Filetype:", fileTypeLabel, constraints);
-        GuiUtilities.addRowToGrid(filePanel, "Length:", fileLengthLabel, constraints);
-        GuiUtilities.addRowToGrid(filePanel, "Last Modified:", lastModifiedLabel, constraints);
-        GuiUtilities.addRowToGrid(filePanel, "Creation Time:", changeDateLabel, constraints);
+        GuiUtilities.addRowToGrid(parentPanel, "Filename:", fileNameTextField, constraints, row++);
+        GuiUtilities.addRowToGrid(parentPanel, "Directory:", directoryLabel, constraints, row++);
+        GuiUtilities.addRowToGrid(parentPanel, "Filetype:", fileTypeLabel, constraints, row++);
+        GuiUtilities.addRowToGrid(parentPanel, "Length:", fileLengthLabel, constraints, row++);
+        GuiUtilities.addRowToGrid(parentPanel, "Last Modified:", lastModifiedLabel, constraints, row++);
+        GuiUtilities.addRowToGrid(parentPanel, "Creation Time:", changeDateLabel, constraints, row++);
 
-        // Platzhalter-Komponente hinzufügen, um das Grid nach oben links zu schieben
-        constraints.gridx = 0;
-        constraints.gridy = GridBagConstraints.RELATIVE;
-        constraints.gridwidth = 3; // Reicht über alle Spalten
-        constraints.weightx = 1.0;
-        constraints.weighty = 1.0;
-        constraints.fill = GridBagConstraints.BOTH;
-        filePanel.add(new JPanel(), constraints);
-
-        return filePanel;
+        return row;
     }
 
-    private JPanel initExifDataDescriptionPanel() {
+    private int initExifDataPanelAddDescriptionInfos(JPanel parentPanel, 
+            GridBagConstraints constraints, int row) {
 
-        JPanel descriptionPanel = new JPanel(new GridBagLayout());
-        descriptionPanel.setBorder(BorderFactory.createTitledBorder("Description"));
-        
         titleComboBox = new JComboBox();
         subjectComboBox = new JComboBox();
         ratingComboBox = new JComboBox();
         markingComboBox = new JComboBox();
         commentsComboBox = new JComboBox();
+        
+        GuiUtilities.addCaptionRowToGrid(parentPanel, "Description", constraints, row++);
 
-        GridBagConstraints constraints = new GridBagConstraints();
-        constraints.insets = new Insets(5, 5, 5, 5);
+        GuiUtilities.addRowToGrid(parentPanel, "Title:", titleComboBox, constraints, row++);
+        GuiUtilities.addRowToGrid(parentPanel, "Subject:", subjectComboBox, constraints, row++);
+        GuiUtilities.addRowToGrid(parentPanel, "Rating:", ratingComboBox, constraints, row++);
+        GuiUtilities.addRowToGrid(parentPanel, "Marking:", markingComboBox, constraints, row++);
+        GuiUtilities.addRowToGrid(parentPanel, "Comments:", commentsComboBox, constraints, row++);
 
-        // Methode zum Hinzufügen einer Zeile mit Label, Textfeld und optionalem Button
-        GuiUtilities.addRowToGrid(descriptionPanel, "Title:", titleComboBox, constraints);
-        GuiUtilities.addRowToGrid(descriptionPanel, "Subject:", subjectComboBox, constraints);
-        GuiUtilities.addRowToGrid(descriptionPanel, "Rating:", ratingComboBox, constraints);
-        GuiUtilities.addRowToGrid(descriptionPanel, "Marking:", markingComboBox, constraints);
-        GuiUtilities.addRowToGrid(descriptionPanel, "Comments:", commentsComboBox, constraints);
-
-        // Platzhalter-Komponente hinzufügen, um das Grid nach oben links zu schieben
-        constraints.gridx = 0;
-        constraints.gridy = GridBagConstraints.RELATIVE;
-        constraints.gridwidth = 3; // Reicht über alle Spalten
-        constraints.weightx = 1.0;
-        constraints.weighty = 1.0;
-        constraints.fill = GridBagConstraints.BOTH;
-        descriptionPanel.add(new JPanel(), constraints);
-
-        return descriptionPanel;
+        return row;
     }
 
-    private JPanel initExifDataSourcePanel() {
-        JPanel sourcePanel = new JPanel(new GridBagLayout());
-        sourcePanel.setBorder(BorderFactory.createTitledBorder("Source"));
-        
+    private int initExifDataPanelAddSourceInfos(JPanel parentPanel,
+            GridBagConstraints constraints, int row) {
+
         authorsComboBox = new JComboBox();
         recordingDateComboBox = new JComboBox();
         softwareNameComboBox = new JComboBox();
         entryDateComboBox = new JComboBox();
         copyRightComboBox = new JComboBox();
-
-        GridBagConstraints constraints = new GridBagConstraints();
-        constraints.insets = new Insets(5, 5, 5, 5);
+        
+        GuiUtilities.addCaptionRowToGrid(parentPanel, "Source", constraints, row++);
 
         // Methode zum Hinzufügen einer Zeile mit Label, Textfeld und optionalem Button
-        GuiUtilities.addRowToGrid(sourcePanel, "Authors:", authorsComboBox, constraints);
-        GuiUtilities.addRowToGrid(sourcePanel, "Recording Date:", recordingDateComboBox, constraints);
-        GuiUtilities.addRowToGrid(sourcePanel, "Software:", softwareNameComboBox, constraints);
-        GuiUtilities.addRowToGrid(sourcePanel, "Entry Date:", entryDateComboBox, constraints);
-        GuiUtilities.addRowToGrid(sourcePanel, "Copyright:", copyRightComboBox, constraints);
-
-        // Platzhalter-Komponente hinzufügen, um das Grid nach oben links zu schieben
-        constraints.gridx = 0;
-        constraints.gridy = GridBagConstraints.RELATIVE;
-        constraints.gridwidth = 3; // Reicht über alle Spalten
-        constraints.weightx = 1.0;
-        constraints.weighty = 1.0;
-        constraints.fill = GridBagConstraints.BOTH;
-        sourcePanel.add(new JPanel(), constraints);
-
-        return sourcePanel;
+        GuiUtilities.addRowToGrid(parentPanel, "Authors:", authorsComboBox, constraints, row++);
+        GuiUtilities.addRowToGrid(parentPanel, "Recording Date:", recordingDateComboBox, constraints, row++);
+        GuiUtilities.addRowToGrid(parentPanel, "Software:", softwareNameComboBox, constraints, row++);
+        GuiUtilities.addRowToGrid(parentPanel, "Entry Date:", entryDateComboBox, constraints, row++);
+        GuiUtilities.addRowToGrid(parentPanel, "Copyright:", copyRightComboBox, constraints, row++);
+        
+        return row;
     }
 }
