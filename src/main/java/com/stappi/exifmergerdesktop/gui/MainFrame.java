@@ -424,57 +424,7 @@ public class MainFrame extends JFrame {
         photosPanel.add(tableScrollPane, BorderLayout.CENTER);
 
         // drag and drop photos to table
-        new DropTarget(photosPanel, new DropTargetListener() {
-            @Override
-            public void dragEnter(DropTargetDragEvent dtde) {
-                // Optional: Handle drag enter event
-            }
-
-            @Override
-            public void dragOver(DropTargetDragEvent dtde) {
-                // Optional: Handle drag over event
-            }
-
-            @Override
-            public void dropActionChanged(DropTargetDragEvent dtde) {
-                // Optional: Handle drop action changed event
-            }
-
-            @Override
-            public void dragExit(DropTargetEvent dte) {
-                // Optional: Handle drag exit event
-            }
-
-            @Override
-            public void drop(DropTargetDropEvent dtde) {
-                try {
-                    // Accept the drop
-                    dtde.acceptDrop(DnDConstants.ACTION_COPY);
-
-                    // Get the dropped files
-                    Transferable transferable = dtde.getTransferable();
-                    DataFlavor[] flavors = transferable.getTransferDataFlavors();
-
-                    for (DataFlavor flavor : flavors) {
-                        if (flavor.isFlavorJavaFileListType()) {
-                            List<Photo> newPhotos = ((List<File>) transferable.getTransferData(flavor))
-                                    .stream().map(file -> file.isDirectory()
-                                    ? Photo.loadPhotosFromDir(file)
-                                    : Photo.loadPhotos(file))
-                                    .flatMap(stream -> stream.stream())
-                                    .collect(Collectors.toList());
-                            photoTableModel.addPhotos(newPhotos);
-                            break;
-                        }
-                    }
-
-                    // Complete the drop
-                    dtde.dropComplete(true);
-                } catch (UnsupportedFlavorException | IOException ex) {
-                    dtde.dropComplete(false);
-                }
-            }
-        });
+        new DropTarget(photosPanel, new PhotoListDropTargetListener(photoTableModel));
     }
 
     private void initExifDataPanel() {
@@ -527,63 +477,7 @@ public class MainFrame extends JFrame {
             Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
         // drag and drop photos to table
-        new DropTarget(referenceLabel, new DropTargetListener() {
-
-            @Override
-            public void dragEnter(DropTargetDragEvent dtde) {
-                // Optional: Handle drag enter event
-            }
-
-            @Override
-            public void dragOver(DropTargetDragEvent dtde) {
-                // Optional: Handle drag over event
-            }
-
-            @Override
-            public void dropActionChanged(DropTargetDragEvent dtde) {
-                // Optional: Handle drop action changed event
-            }
-
-            @Override
-            public void dragExit(DropTargetEvent dte) {
-                // Optional: Handle drag exit event
-            }
-
-            @Override
-            public void drop(DropTargetDropEvent dtde) {
-                try {
-                    // Accept the drop
-                    dtde.acceptDrop(DnDConstants.ACTION_COPY);
-
-                    // Get the dropped files
-                    Transferable transferable = dtde.getTransferable();
-                    DataFlavor[] flavors = transferable.getTransferDataFlavors();
-
-                    for (DataFlavor flavor : flavors) {
-                        if (flavor.isFlavorJavaFileListType()) {
-
-                            ((List<File>) transferable.getTransferData(flavor))
-                                    .stream()
-                                    .findFirst()
-                                    .ifPresent(referencePhoto -> {
-                                        try {
-                                            GuiUtilities.setImageToLabel(referenceLabel, referencePhoto, 240, 240);
-                                            //TODO set reference photo
-                                        } catch (IOException ex) {
-                                            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
-                                        }
-                                    });
-                            break;
-                        }
-                    }
-
-                    // Complete the drop
-                    dtde.dropComplete(true);
-                } catch (UnsupportedFlavorException | IOException ex) {
-                    dtde.dropComplete(false);
-                }
-            }
-        });
+        new DropTarget(referenceLabel, new ReferencePhotoDropTargetListener(referenceLabel));
         imageViewPanel.add(referenceLabel);
 
         JPanel manageReferencePanel = new JPanel();
