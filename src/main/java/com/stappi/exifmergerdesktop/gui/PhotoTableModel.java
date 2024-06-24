@@ -6,6 +6,7 @@ package com.stappi.exifmergerdesktop.gui;
 
 import com.stappi.exifmergerdesktop.merger.Photo;
 import com.stappi.exifmergerdesktop.utilities.FileUtilities;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -38,6 +39,12 @@ public class PhotoTableModel extends DefaultTableModel {
     
     public Photo getLastAddedPhoto() {
         return lastAddedPhoto;
+    }
+    
+    public File getLastAddedPhotoFile() {
+        return Optional.ofNullable(lastAddedPhoto)
+                .map(Photo::getFile)
+                .orElse(null);
     }
 
     public void addPhotos(List<Photo> newPhotos) {

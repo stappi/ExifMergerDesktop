@@ -52,27 +52,7 @@ public class MainFrame extends JFrame {
     private JPanel sidebar;
     private JPanel photosPanel;
     private JPanel exifDataPanel;
-
-    // menu
-    private JMenuBar menuBar;
-    private JMenu fileMenu;
-    private JMenuItem exitMenuItem;
-    private JMenu photosMenu;
-    private JMenuItem openPhotosMenuItem;
-    private JMenuItem openFolderMenuItem;
-    private JMenuItem saveMenuItem;
-    private JMenuItem saveCopyMenuItem;
-    private JMenuItem clearPhotoTableMenuItem;
-    private JMenu photoReferenceMenu;
-    private JMenuItem loadMenuItem;
-    private JMenuItem removeMenuItem;
-    private JMenu settingsMenu;
-    private JMenuItem globalExifDataMenuItem;
-    private JMenuItem mergePriorizationMenuItem;
-    private JMenu helpMenu;
-    private JMenuItem helpMenuItem;
-    private JMenuItem aboutMenuItem;
-
+    
     // sidebar
     private JButton toggleSidebarButton;
 
@@ -80,24 +60,7 @@ public class MainFrame extends JFrame {
     private PhotoTableModel photoTableModel;
 
     // exif panel
-    private JTextField fileNameTextField;
-    private JLabel directoryLabel;
-    private JLabel fileTypeLabel;
-    private JLabel fileLengthLabel;
-    private JLabel lastModifiedLabel;
-    private JLabel changeDateLabel;
-
-    private JComboBox titleComboBox;
-    private JComboBox subjectComboBox;
-    private JComboBox ratingComboBox;
-    private JComboBox markingComboBox;
-    private JComboBox commentsComboBox;
-
-    private JComboBox authorsComboBox;
-    private JComboBox recordingDateComboBox;
-    private JComboBox softwareNameComboBox;
-    private JComboBox entryDateComboBox;
-    private JComboBox copyRightComboBox;
+    private PhotoExifDataPanel photoExifDataPanel;
 
     private JLabel imageLabel;
     private JLabel referenceLabel;
@@ -108,11 +71,11 @@ public class MainFrame extends JFrame {
     // =========================================================================
     public MainFrame() {
         initMainFrame();
-        initMenu();
         initMainPanels();
         initSideBar();
         initPhotosPanel();
         initExifDataPanel();
+        initMenu();
     }
 
     // =========================================================================
@@ -137,65 +100,9 @@ public class MainFrame extends JFrame {
         }
     }
 
-    private void openPhotosMenuItemActionPerformed(ActionEvent evt) {
-        List<Photo> newPhotos = Photo.loadPhotos(
-                GuiUtilities.showPhotosChooser(this, getLastAddedPhotoFile()));
-        photoTableModel.addPhotos(newPhotos);
-    }
-
-    private void openFolderMenuItemActionPerformed(ActionEvent evt) {
-        File directory = GuiUtilities.showDirectoryChooser(this, getLastAddedPhotoFile());
-        List<Photo> newPhotos = Photo.loadPhotosFromDir(directory);
-        photoTableModel.addPhotos(newPhotos);
-    }
-
-    private void saveMenuItemActionPerformed(ActionEvent evt) {
-        System.out.println("Menu Item Save");
-    }
-
-    private void saveCopyMenuItemActionPerformed(ActionEvent evt) {
-        System.out.println("Menu Item Save Copy");
-    }
-
-    private void clearPhotoTableMenuItemActionPerformed(ActionEvent evt) {
-        photoTableModel.clear();
-    }
-
-    private void exitMenuItemActionPerformed(ActionEvent evt) {
-        System.exit(0);
-    }
-
-    private void loadMenuItemActionPerformed(ActionEvent evt) {
-        System.out.println("Menu Item Load Photo Reference");
-    }
-
-    private void removeMenuItemActionPerformed(ActionEvent evt) {
-        System.out.println("Menu Item Remove Photo Reference");
-    }
-
-    private void globalExifDataMenuItemActionPerformed(ActionEvent evt) {
-        System.out.println("Menu Item Global Exif Data Settings");
-    }
-
-    private void helpMenuItemActionPerformed(ActionEvent evt) {
-        System.out.println("Menu Item Global Help");
-    }
-
-    private void aboutMenuItemActionPerformed(ActionEvent evt) {
-        System.out.println("Menu Item Global About");
-    }
-
     private void setExifDataForSelectedPhoto(Photo photo) throws IOException {
 
-        fileNameTextField.setText(photo.getFile().getName());
-        directoryLabel.setText(photo.getFile().getParent());
-        fileTypeLabel.setText(FileUtilities.getExtension(photo.getFile()).orElse("?"));
-        fileLengthLabel.setText(photo.getLength());
-        lastModifiedLabel.setText(photo.getLastModified());
-        changeDateLabel.setText(photo.getCreationTime());
-
-        recordingDateComboBox.setModel(new DefaultComboBoxModel(photo.getRecordingDateTimeValues()));
-        recordingDateComboBox.setSelectedIndex(0);
+        photoExifDataPanel.setExifDataForPhoto(photo);       
 
         GuiUtilities.setImageToLabel(imageLabel, photo.getFile(), 240, 240);
     }
@@ -226,136 +133,7 @@ public class MainFrame extends JFrame {
     }
 
     private void initMenu() {
-        menuBar = new JMenuBar();
-
-        fileMenu = new JMenu();
-        exitMenuItem = new JMenuItem();
-        photosMenu = new JMenu();
-        openPhotosMenuItem = new JMenuItem();
-        openFolderMenuItem = new JMenuItem();
-        saveMenuItem = new JMenuItem();
-        saveCopyMenuItem = new JMenuItem();
-        clearPhotoTableMenuItem = new JMenuItem();
-        photoReferenceMenu = new JMenu();
-        loadMenuItem = new JMenuItem();
-        removeMenuItem = new JMenuItem();
-        settingsMenu = new JMenu();
-        globalExifDataMenuItem = new JMenuItem();
-        mergePriorizationMenuItem = new JMenuItem();
-        helpMenu = new JMenu();
-        helpMenuItem = new JMenuItem();
-        aboutMenuItem = new JMenuItem();
-
-        // file menu        
-        fileMenu.setText("File");
-
-        exitMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(KeyEvent.VK_F4, InputEvent.ALT_DOWN_MASK));
-        exitMenuItem.setMnemonic('x');
-        exitMenuItem.setText("Exit");
-        exitMenuItem.addActionListener((ActionEvent evt) -> {
-            exitMenuItemActionPerformed(evt);
-        });
-        fileMenu.add(exitMenuItem);
-
-        menuBar.add(fileMenu);
-
-        photosMenu.setText("Photos");
-
-        openPhotosMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK));
-        openPhotosMenuItem.setMnemonic('o');
-        openPhotosMenuItem.setText("Open Photos");
-        openPhotosMenuItem.addActionListener((ActionEvent evt) -> {
-            openPhotosMenuItemActionPerformed(evt);
-        });
-        photosMenu.add(openPhotosMenuItem);
-
-        openFolderMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.SHIFT_DOWN_MASK | InputEvent.CTRL_DOWN_MASK));
-        openFolderMenuItem.setText("Open Folder With Photos");
-        openFolderMenuItem.addActionListener((ActionEvent evt) -> {
-            openFolderMenuItemActionPerformed(evt);
-        });
-        photosMenu.add(openFolderMenuItem);
-
-        photosMenu.add(new JSeparator());
-
-        saveMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK));
-        saveMenuItem.setMnemonic('s');
-        saveMenuItem.setText("Save");
-        saveMenuItem.addActionListener((ActionEvent evt) -> {
-            saveMenuItemActionPerformed(evt);
-        });
-        photosMenu.add(saveMenuItem);
-
-        saveCopyMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.SHIFT_DOWN_MASK | InputEvent.CTRL_DOWN_MASK));
-        saveCopyMenuItem.setText("Save Copy");
-        saveCopyMenuItem.addActionListener((ActionEvent evt) -> {
-            saveCopyMenuItemActionPerformed(evt);
-        });
-        photosMenu.add(saveCopyMenuItem);
-
-        photosMenu.add(new JSeparator());
-
-        clearPhotoTableMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, InputEvent.SHIFT_DOWN_MASK | InputEvent.CTRL_DOWN_MASK));
-        clearPhotoTableMenuItem.setText("Clear photo list");
-        clearPhotoTableMenuItem.addActionListener((ActionEvent evt) -> {
-            clearPhotoTableMenuItemActionPerformed(evt);
-        });
-        photosMenu.add(clearPhotoTableMenuItem);
-
-        menuBar.add(photosMenu);
-
-        // reference menu
-        photoReferenceMenu.setText("Reference");
-
-        loadMenuItem.setText("Load Photo Reference");
-        loadMenuItem.addActionListener((ActionEvent evt) -> {
-            loadMenuItemActionPerformed(evt);
-        });
-        photoReferenceMenu.add(loadMenuItem);
-
-        removeMenuItem.setText("Remove Photo Reference");
-        removeMenuItem.addActionListener((ActionEvent evt) -> {
-            removeMenuItemActionPerformed(evt);
-        });
-        photoReferenceMenu.add(removeMenuItem);
-
-        menuBar.add(photoReferenceMenu);
-
-        // settings menu
-        settingsMenu.setText("Settings");
-
-        globalExifDataMenuItem.setText("Global Exif Data Settings");
-        globalExifDataMenuItem.addActionListener((ActionEvent evt) -> {
-            globalExifDataMenuItemActionPerformed(evt);
-        });
-        settingsMenu.add(globalExifDataMenuItem);
-
-        mergePriorizationMenuItem.setText("Exif Merge Priorization");
-        settingsMenu.add(mergePriorizationMenuItem);
-
-        menuBar.add(settingsMenu);
-
-        // help menu
-        helpMenu.setText("Help");
-        helpMenu.setToolTipText("");
-
-        helpMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0));
-        helpMenuItem.setText("Help");
-        helpMenuItem.addActionListener((ActionEvent evt) -> {
-            helpMenuItemActionPerformed(evt);
-        });
-        helpMenu.add(helpMenuItem);
-
-        aboutMenuItem.setText("About");
-        aboutMenuItem.addActionListener((ActionEvent evt) -> {
-            aboutMenuItemActionPerformed(evt);
-        });
-        helpMenu.add(aboutMenuItem);
-
-        menuBar.add(helpMenu);
-
-        // set menu bar
-        setJMenuBar(menuBar);
+        setJMenuBar(new Menu(photoTableModel));
     }
 
     private void initMainPanels() {
@@ -378,7 +156,7 @@ public class MainFrame extends JFrame {
 
         // set default position
         horizontalSplitPane.setDividerLocation(200);
-        verticalSplitPane.setDividerLocation(getHeight() - 475);
+        verticalSplitPane.setDividerLocation(getHeight() - 550);
 
         getContentPane().add(horizontalSplitPane);
     }
@@ -429,26 +207,8 @@ public class MainFrame extends JFrame {
 
     private void initExifDataPanel() {
 
-        JPanel dataPanel = new JPanel(new GridBagLayout());
-
-        GridBagConstraints constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-
-        int currentRow = 0;
-        currentRow = initExifDataPanelAddFileInfos(dataPanel, constraints, currentRow);
-        currentRow = initExifDataPanelAddDescriptionInfos(dataPanel, constraints, currentRow);
-        initExifDataPanelAddSourceInfos(dataPanel, constraints, currentRow);
-
-        // Platzhalter-Komponente hinzufügen, um das Grid nach oben links zu schieben
-        constraints.gridx = 0;
-        constraints.gridy = GridBagConstraints.RELATIVE;
-        constraints.gridwidth = 3; // Reicht über alle Spalten
-        constraints.weightx = 1.0;
-        constraints.weighty = 1.0;
-        constraints.fill = GridBagConstraints.BOTH;
-        dataPanel.add(new JPanel(), constraints);
-
-        JScrollPane dataScrollPane = new JScrollPane(dataPanel);
+        photoExifDataPanel = new PhotoExifDataPanel();
+        JScrollPane dataScrollPane = new JScrollPane(photoExifDataPanel);
 
         // images (original and reference if exists)
         JPanel imageViewPanel = new JPanel();
@@ -497,69 +257,5 @@ public class MainFrame extends JFrame {
         // add panels
         exifDataPanel.add(dataScrollPane, BorderLayout.CENTER);
         exifDataPanel.add(imageViewScrollPane, BorderLayout.EAST);
-    }
-
-    private int initExifDataPanelAddFileInfos(JPanel parentPanel,
-            GridBagConstraints constraints, int row) {
-
-        fileNameTextField = new JTextField();
-        directoryLabel = new JLabel();
-        fileTypeLabel = new JLabel();
-        fileLengthLabel = new JLabel();
-        lastModifiedLabel = new JLabel();
-        changeDateLabel = new JLabel();
-
-        GuiUtilities.addCaptionRowToGrid(parentPanel, "File Info", constraints, row++);
-
-        GuiUtilities.addRowToGrid(parentPanel, "Filename:", fileNameTextField, constraints, row++);
-        GuiUtilities.addRowToGrid(parentPanel, "Directory:", directoryLabel, constraints, row++);
-        GuiUtilities.addRowToGrid(parentPanel, "Filetype:", fileTypeLabel, constraints, row++);
-        GuiUtilities.addRowToGrid(parentPanel, "Length:", fileLengthLabel, constraints, row++);
-        GuiUtilities.addRowToGrid(parentPanel, "Last Modified:", lastModifiedLabel, constraints, row++);
-        GuiUtilities.addRowToGrid(parentPanel, "Creation Time:", changeDateLabel, constraints, row++);
-
-        return row;
-    }
-
-    private int initExifDataPanelAddDescriptionInfos(JPanel parentPanel,
-            GridBagConstraints constraints, int row) {
-
-        titleComboBox = new JComboBox();
-        subjectComboBox = new JComboBox();
-        ratingComboBox = new JComboBox();
-        markingComboBox = new JComboBox();
-        commentsComboBox = new JComboBox();
-
-        GuiUtilities.addCaptionRowToGrid(parentPanel, "Description", constraints, row++);
-
-        GuiUtilities.addRowToGrid(parentPanel, "Title:", titleComboBox, constraints, row++);
-        GuiUtilities.addRowToGrid(parentPanel, "Subject:", subjectComboBox, constraints, row++);
-        GuiUtilities.addRowToGrid(parentPanel, "Rating:", ratingComboBox, constraints, row++);
-        GuiUtilities.addRowToGrid(parentPanel, "Marking:", markingComboBox, constraints, row++);
-        GuiUtilities.addRowToGrid(parentPanel, "Comments:", commentsComboBox, constraints, row++);
-
-        return row;
-    }
-
-    private int initExifDataPanelAddSourceInfos(JPanel parentPanel,
-            GridBagConstraints constraints, int row) {
-
-        authorsComboBox = new JComboBox();
-        recordingDateComboBox = new JComboBox();
-        recordingDateComboBox.setEditable(true);
-        softwareNameComboBox = new JComboBox();
-        entryDateComboBox = new JComboBox();
-        copyRightComboBox = new JComboBox();
-
-        GuiUtilities.addCaptionRowToGrid(parentPanel, "Source", constraints, row++);
-
-        // Methode zum Hinzufügen einer Zeile mit Label, Textfeld und optionalem Button
-        GuiUtilities.addRowToGrid(parentPanel, "Authors:", authorsComboBox, constraints, row++);
-        GuiUtilities.addRowToGrid(parentPanel, "Recording Date:", recordingDateComboBox, constraints, row++);
-        GuiUtilities.addRowToGrid(parentPanel, "Software:", softwareNameComboBox, constraints, row++);
-        GuiUtilities.addRowToGrid(parentPanel, "Entry Date:", entryDateComboBox, constraints, row++);
-        GuiUtilities.addRowToGrid(parentPanel, "Copyright:", copyRightComboBox, constraints, row++);
-
-        return row;
     }
 }
