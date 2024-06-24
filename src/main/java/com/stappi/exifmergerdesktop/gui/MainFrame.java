@@ -6,9 +6,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.dnd.DropTarget;
 import java.awt.event.ActionEvent;
-import java.io.File;
 import java.io.IOException;
-import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.*;
@@ -27,6 +25,8 @@ public class MainFrame extends JFrame {
     private JPanel sidebar;
     private JPanel photoListPanel;
     private JPanel photoDetailsPanel;
+    private JPanel generalExifDataPanel;
+    private JPanel mergePriorizationPanel;
     
     // sidebar
     private JButton toggleSidebarButton;
@@ -45,14 +45,10 @@ public class MainFrame extends JFrame {
         initSideBar();
         initPhotosPanel();
         initExifDataPanel();
+        initGeneralExifDataPanel();
+        initMergePriorizationPanel();
+        
         initMenu();
-    }
-
-    // =========================================================================
-    private File getLastAddedPhotoFile() {
-        return Optional.ofNullable(photoTableModel.getLastAddedPhoto())
-                .map(Photo::getFile)
-                .orElse(null);
     }
 
     // =========================================================================
@@ -169,8 +165,25 @@ public class MainFrame extends JFrame {
         photoDetailsPanel.add(dataScrollPane, BorderLayout.CENTER);
         photoDetailsPanel.add(photoViewScrollPane, BorderLayout.EAST);
     }    
+    
+    private void initGeneralExifDataPanel() {
+
+        generalExifDataPanel = new JPanel(new BorderLayout());
+        JLabel label = new JLabel("Settings");
+        generalExifDataPanel.add(label, BorderLayout.CENTER);
+    }    
+    
+    private void initMergePriorizationPanel() {
+
+        mergePriorizationPanel = new JPanel(new BorderLayout());
+        JLabel label = new JLabel("Merge Prio");
+        mergePriorizationPanel.add(label, BorderLayout.CENTER);
+    }    
 
     private void initMenu() {
-        setJMenuBar(new Menu(photoTableModel));
+        setJMenuBar(new Menu(verticalSplitPane, horizontalSplitPane, 
+                sidebar, photoListPanel, photoDetailsPanel, 
+                generalExifDataPanel, mergePriorizationPanel,
+                photoTableModel));
     }
 }

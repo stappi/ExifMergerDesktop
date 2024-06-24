@@ -14,7 +14,9 @@ import java.util.List;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 import javax.swing.JSeparator;
+import javax.swing.JSplitPane;
 
 /**
  *
@@ -22,7 +24,14 @@ import javax.swing.JSeparator;
  */
 public class Menu extends JMenuBar {
     
-    private PhotoTableModel photoTableModel;
+    private final JSplitPane verticalSplitPane;
+    private final JSplitPane horizontalSplitPane;
+    private final JPanel sidebar;
+    private final JPanel photoListPanel;
+    private final JPanel photoDetailsPanel;
+    private final JPanel generalExifDataPanel;
+    private final JPanel mergePriorizationPanel;
+    private final PhotoTableModel photoTableModel;
     
     private JMenuItem exitMenuItem;
     
@@ -41,7 +50,17 @@ public class Menu extends JMenuBar {
     private JMenuItem helpMenuItem;
     private JMenuItem aboutMenuItem;
 
-    public Menu(PhotoTableModel photoTableModel) {
+    public Menu(JSplitPane verticalSplitPane, JSplitPane horizontalSplitPane, 
+            JPanel sidebar, JPanel photoListPanel, JPanel photoDetailsPanel, 
+            JPanel generalExifDataPanel, JPanel mergePriorizationPanel, 
+            PhotoTableModel photoTableModel) {
+        this.verticalSplitPane = verticalSplitPane;
+        this.horizontalSplitPane = horizontalSplitPane;
+        this.sidebar = sidebar;
+        this.photoListPanel = photoListPanel;
+        this.photoDetailsPanel = photoDetailsPanel;
+        this.generalExifDataPanel = generalExifDataPanel;
+        this.mergePriorizationPanel = mergePriorizationPanel;
         this.photoTableModel = photoTableModel;
         initFileMenu();            
         initPhotosMenu();            
@@ -90,7 +109,11 @@ public class Menu extends JMenuBar {
     }
 
     private void globalExifDataMenuItemActionPerformed() {
-        System.out.println("Menu Item Global Exif Data Settings");
+        horizontalSplitPane.setRightComponent(generalExifDataPanel);
+    }
+    
+    private void mergePriorizationMenuItemActionPerformed() {
+        horizontalSplitPane.setRightComponent(mergePriorizationPanel);
     }
 
     private void helpMenuItemActionPerformed() {
@@ -210,6 +233,9 @@ public class Menu extends JMenuBar {
 
         mergePriorizationMenuItem = new JMenuItem();
         mergePriorizationMenuItem.setText("Exif Merge Priorization");
+        mergePriorizationMenuItem.addActionListener((ActionEvent evt) -> {
+            mergePriorizationMenuItemActionPerformed();
+        });
         settingsMenu.add(mergePriorizationMenuItem);
 
         add(settingsMenu);
