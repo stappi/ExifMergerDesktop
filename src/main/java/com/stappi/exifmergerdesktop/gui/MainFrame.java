@@ -1,38 +1,16 @@
 package com.stappi.exifmergerdesktop.gui;
 
 import com.stappi.exifmergerdesktop.merger.Photo;
-import com.stappi.exifmergerdesktop.utilities.FileUtilities;
-import com.stappi.exifmergerdesktop.utilities.GuiUtilities;
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.Transferable;
-import java.awt.datatransfer.UnsupportedFlavorException;
-import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTarget;
-import java.awt.dnd.DropTargetDragEvent;
-import java.awt.dnd.DropTargetDropEvent;
-import java.awt.dnd.DropTargetEvent;
-import java.awt.dnd.DropTargetListener;
 import java.awt.event.ActionEvent;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 
@@ -42,31 +20,23 @@ public class MainFrame extends JFrame {
     private static final int MAIN_FRAME_HEIGHT = 600;
     private static final int SIDEBAR_MIN_WIDTH = 50;
     private static final int SIDEBAR_MAX_WIDTH = 200;
-
-    private static final String IMG_NOT_SET = "images/img_not_set.png";
-    private static final String IMG_REFERENCE_NOT_SET = "images/img_ref_not_set.png";
-
+   
     // main panels
     private JSplitPane verticalSplitPane;
     private JSplitPane horizontalSplitPane;
     private JPanel sidebar;
-    private JPanel photosPanel;
-    private JPanel exifDataPanel;
+    private JPanel photoListPanel;
+    private JPanel photoDetailsPanel;
     
     // sidebar
     private JButton toggleSidebarButton;
 
-    // photo panel
+    // photosPanel
     private PhotoTableModel photoTableModel;
-
-    // exif panel
+    
+    // photoDetailsPanel   
     private PhotoExifDataPanel photoExifDataPanel;
-
-    private JLabel imageLabel;
-    private JLabel referenceLabel;
-    private JButton openReferenceButton;
-    private JButton adjustReferenceButton;
-    private JButton removeReferenceButton;
+    private PhotoViewPanel photoViewPanel;
 
     // =========================================================================
     public MainFrame() {
@@ -103,22 +73,8 @@ public class MainFrame extends JFrame {
     private void setExifDataForSelectedPhoto(Photo photo) throws IOException {
 
         photoExifDataPanel.setExifDataForPhoto(photo);       
-
-        GuiUtilities.setImageToLabel(imageLabel, photo.getFile(), 240, 240);
-    }
-
-    private File loadImageFromResources(String path) throws IOException {
-        try (InputStream inputStream
-                = MainFrame.class.getClassLoader().getResourceAsStream(path)) {
-            if (inputStream == null) {
-                throw new IllegalArgumentException("File not found: " + path);
-            }
-
-            // Create a temporary file
-            Path tempFile = Files.createTempFile("tempFile", ".tmp");
-            Files.copy(inputStream, tempFile, StandardCopyOption.REPLACE_EXISTING);
-            return tempFile.toFile();
-        }
+        photoViewPanel.showPhotoOnView(photo);
+        
     }
 
     // =========================================================================
@@ -132,18 +88,14 @@ public class MainFrame extends JFrame {
         setLocationRelativeTo(null);  // Zentriert das Fenster auf dem Bildschirm
     }
 
-    private void initMenu() {
-        setJMenuBar(new Menu(photoTableModel));
-    }
-
     private void initMainPanels() {
 
         // create main panels for displaying photos and exif data: =
         verticalSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-        photosPanel = new JPanel(new BorderLayout());
-        exifDataPanel = new JPanel(new BorderLayout());
-        verticalSplitPane.setTopComponent(photosPanel);
-        verticalSplitPane.setBottomComponent(exifDataPanel);
+        photoListPanel = new JPanel(new BorderLayout());
+        photoDetailsPanel = new JPanel(new BorderLayout());
+        verticalSplitPane.setTopComponent(photoListPanel);
+        verticalSplitPane.setBottomComponent(photoDetailsPanel);
 //        verticalSplitPane.setResizeWeight(1.0); // photosPanel height grows higher with main frame
 
         // create sidebar: |=
@@ -198,11 +150,11 @@ public class MainFrame extends JFrame {
         });
         JScrollPane tableScrollPane = new JScrollPane(photosTable);
 
-        photosPanel.add(searchPanel, BorderLayout.NORTH);
-        photosPanel.add(tableScrollPane, BorderLayout.CENTER);
+        photoListPanel.add(searchPanel, BorderLayout.NORTH);
+        photoListPanel.add(tableScrollPane, BorderLayout.CENTER);
 
         // drag and drop photos to table
-        new DropTarget(photosPanel, new PhotoListDropTargetListener(photoTableModel));
+        new DropTarget(photoListPanel, new PhotoListDropTargetListener(photoTableModel));
     }
 
     private void initExifDataPanel() {
@@ -210,52 +162,15 @@ public class MainFrame extends JFrame {
         photoExifDataPanel = new PhotoExifDataPanel();
         JScrollPane dataScrollPane = new JScrollPane(photoExifDataPanel);
 
-        // images (original and reference if exists)
-        JPanel imageViewPanel = new JPanel();
-        imageViewPanel.setLayout(new BoxLayout(imageViewPanel, BoxLayout.Y_AXIS));
-
-        imageViewPanel.add(Box.createVerticalStrut(10));
-
-        imageLabel = new JLabel();
-        imageLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        try {
-            GuiUtilities.setImageToLabel(imageLabel, loadImageFromResources(IMG_NOT_SET), 240, 240);
-        } catch (IOException ex) {
-            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        imageViewPanel.add(imageLabel);
-
-        imageViewPanel.add(Box.createVerticalStrut(10));
-
-        imageViewPanel.add(new JLabel("Reference Photo"));
-
-        referenceLabel = new JLabel();
-        referenceLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        try {
-            GuiUtilities.setImageToLabel(referenceLabel, loadImageFromResources(IMG_REFERENCE_NOT_SET), 240, 240);
-        } catch (IOException ex) {
-            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        // drag and drop photos to table
-        new DropTarget(referenceLabel, new ReferencePhotoDropTargetListener(referenceLabel));
-        imageViewPanel.add(referenceLabel);
-
-        JPanel manageReferencePanel = new JPanel();
-        manageReferencePanel.setLayout(new BoxLayout(manageReferencePanel, BoxLayout.X_AXIS));
-        openReferenceButton = new JButton("O");
-        adjustReferenceButton = new JButton("E");
-        removeReferenceButton = new JButton("R");
-        manageReferencePanel.add(openReferenceButton);
-        manageReferencePanel.add(adjustReferenceButton);
-        manageReferencePanel.add(removeReferenceButton);
-        imageViewPanel.add(manageReferencePanel);
-
-        imageViewPanel.setPreferredSize(new Dimension(250, 0));
-        
-        JScrollPane imageViewScrollPane = new JScrollPane(imageViewPanel);
+        photoViewPanel = new PhotoViewPanel();
+        JScrollPane photoViewScrollPane = new JScrollPane(photoViewPanel);
 
         // add panels
-        exifDataPanel.add(dataScrollPane, BorderLayout.CENTER);
-        exifDataPanel.add(imageViewScrollPane, BorderLayout.EAST);
+        photoDetailsPanel.add(dataScrollPane, BorderLayout.CENTER);
+        photoDetailsPanel.add(photoViewScrollPane, BorderLayout.EAST);
+    }    
+
+    private void initMenu() {
+        setJMenuBar(new Menu(photoTableModel));
     }
 }
