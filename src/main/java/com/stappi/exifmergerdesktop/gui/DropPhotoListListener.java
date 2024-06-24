@@ -4,7 +4,7 @@
  */
 package com.stappi.exifmergerdesktop.gui;
 
-import com.stappi.exifmergerdesktop.utilities.GuiUtilities;
+import com.stappi.exifmergerdesktop.merger.Photo;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -16,22 +16,20 @@ import java.awt.dnd.DropTargetListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.JLabel;
+import java.util.stream.Collectors;
 
 /**
  *
  * @author micha
  */
-public class ReferencePhotoDropTargetListener implements DropTargetListener {
-    
-    private final JLabel referenceLabel;
-    
-    public ReferencePhotoDropTargetListener(JLabel referenceLabel) {
-        this.referenceLabel = referenceLabel;
-    }
+public class DropPhotoListListener implements DropTargetListener {
 
+    private final PhotoTableModel photoTableModel;
+
+    public DropPhotoListListener(PhotoTableModel photoTableModel) {
+        this.photoTableModel = photoTableModel;
+    }
+        
     @Override
     public void dragEnter(DropTargetDragEvent dtde) {
         // Optional: Handle drag enter event
@@ -64,18 +62,13 @@ public class ReferencePhotoDropTargetListener implements DropTargetListener {
 
             for (DataFlavor flavor : flavors) {
                 if (flavor.isFlavorJavaFileListType()) {
-
-                    ((List<File>) transferable.getTransferData(flavor))
-                            .stream()
-                            .findFirst()
-                            .ifPresent(referencePhoto -> {
-                                try {
-                                    GuiUtilities.setImageToLabel(referenceLabel, referencePhoto, 240, 240);
-                                    //TODO set reference photo
-                                } catch (IOException ex) {
-                                    Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
-                                }
-                            });
+                    List<Photo> newPhotos = ((List<File>) transferable.getTransferData(flavor))
+                            .stream().map(file -> file.isDirectory()
+                            ? Photo.loadPhotosFromDir(file)
+                            : Photo.loadPhotos(file))
+                            .flatMap(stream -> stream.stream())
+                            .collect(Collectors.toList());
+                    photoTableModel.addPhotos(newPhotos);
                     break;
                 }
             }
@@ -86,5 +79,4 @@ public class ReferencePhotoDropTargetListener implements DropTargetListener {
             dtde.dropComplete(false);
         }
     }
-
 }

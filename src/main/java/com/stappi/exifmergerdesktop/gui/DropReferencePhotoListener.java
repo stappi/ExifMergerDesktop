@@ -4,8 +4,8 @@
  */
 package com.stappi.exifmergerdesktop.gui;
 
-import com.stappi.exifmergerdesktop.merger.Photo;
 import com.stappi.exifmergerdesktop.utilities.GuiUtilities;
+import java.awt.Dimension;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -19,21 +19,20 @@ import java.io.IOException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import javax.swing.JLabel;
 
 /**
  *
  * @author micha
  */
-public class PhotoListDropTargetListener implements DropTargetListener {
+public class DropReferencePhotoListener implements DropTargetListener {
 
-    private final PhotoTableModel photoTableModel;
+    private final JLabel referenceLabel;
 
-    public PhotoListDropTargetListener(PhotoTableModel photoTableModel) {
-        this.photoTableModel = photoTableModel;
+    public DropReferencePhotoListener(JLabel referenceLabel) {
+        this.referenceLabel = referenceLabel;
     }
-        
+
     @Override
     public void dragEnter(DropTargetDragEvent dtde) {
         // Optional: Handle drag enter event
@@ -66,13 +65,20 @@ public class PhotoListDropTargetListener implements DropTargetListener {
 
             for (DataFlavor flavor : flavors) {
                 if (flavor.isFlavorJavaFileListType()) {
-                    List<Photo> newPhotos = ((List<File>) transferable.getTransferData(flavor))
-                            .stream().map(file -> file.isDirectory()
-                            ? Photo.loadPhotosFromDir(file)
-                            : Photo.loadPhotos(file))
-                            .flatMap(stream -> stream.stream())
-                            .collect(Collectors.toList());
-                    photoTableModel.addPhotos(newPhotos);
+
+                    ((List<File>) transferable.getTransferData(flavor))
+                            .stream()
+                            .findFirst()
+                            .ifPresent(referencePhoto -> {
+                                try {
+                                    GuiUtilities.setImageToLabel(referenceLabel, referencePhoto, 240, 240);
+                                    referenceLabel.getParent().setMaximumSize(new Dimension(
+                                            Integer.MAX_VALUE, referenceLabel.getParent().getPreferredSize().height));
+                                    //TODO set reference photo
+                                } catch (IOException ex) {
+                                    Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+                                }
+                            });
                     break;
                 }
             }
@@ -83,4 +89,5 @@ public class PhotoListDropTargetListener implements DropTargetListener {
             dtde.dropComplete(false);
         }
     }
+
 }

@@ -16,8 +16,8 @@ import javax.swing.event.ListSelectionEvent;
 
 public class MainFrame extends JFrame {
 
-    private static final int MAIN_FRAME_WIDTH = 1000;
-    private static final int MAIN_FRAME_HEIGHT = 600;
+    private static final int MAIN_FRAME_WIDTH = 1200;
+    private static final int MAIN_FRAME_HEIGHT = 750;
     private static final int SIDEBAR_MIN_WIDTH = 50;
     private static final int SIDEBAR_MAX_WIDTH = 200;
    
@@ -154,7 +154,7 @@ public class MainFrame extends JFrame {
         photoListPanel.add(tableScrollPane, BorderLayout.CENTER);
 
         // drag and drop photos to table
-        new DropTarget(photoListPanel, new PhotoListDropTargetListener(photoTableModel));
+        new DropTarget(photoListPanel, new DropPhotoListListener(photoTableModel));
     }
 
     private void initExifDataPanel() {
