@@ -4,6 +4,7 @@
  */
 package com.stappi.exifmergerdesktop.gui;
 
+import com.stappi.exifmergerdesktop.SettingsManager;
 import com.stappi.exifmergerdesktop.utilities.GuiUtilities;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -18,27 +19,27 @@ import javax.swing.JPanel;
  * @author Michael Stappert
  */
 public class Sidebar extends JPanel {
-    
+
     private final MainFrame mainFrame;
-    
+
     private final GridBagConstraints constraints;
-    
+
     private View currentView;
-    
+
     private JButton okButton;
     private JButton applyButton;
     private JButton saveButton;
     private JButton saveCopyButton;
     private JButton cancelButton;
-    
+
     public Sidebar(MainFrame mainFrame) {
         super(new GridBagLayout());
 
         this.mainFrame = mainFrame;
-        
+
         initButtons();
 
-        this.constraints = new GridBagConstraints();       
+        this.constraints = new GridBagConstraints();
         constraints.weightx = 1;
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.gridwidth = GridBagConstraints.REMAINDER;
@@ -46,7 +47,7 @@ public class Sidebar extends JPanel {
 
         showButtonsForPhotosView();
     }
-    
+
     // =========================================================================
     // show buttons
     // =========================================================================
@@ -57,7 +58,7 @@ public class Sidebar extends JPanel {
         add(saveCopyButton, constraints);
         add(new JPanel(), GuiUtilities.createPlaceholderConstraint());
     }
-   
+
     public final void showButtonsForSettingsGeneralExifData() {
         this.removeAll();
         this.currentView = View.GENERAL_EXIF_DATA;
@@ -66,7 +67,7 @@ public class Sidebar extends JPanel {
         add(cancelButton, constraints);
         add(new JPanel(), GuiUtilities.createPlaceholderConstraint());
     }
-    
+
     public final void showButtonsForMergePriorization() {
         this.removeAll();
         this.currentView = View.MERGE_PRIO;
@@ -75,6 +76,7 @@ public class Sidebar extends JPanel {
         add(cancelButton, constraints);
         add(new JPanel(), GuiUtilities.createPlaceholderConstraint());
     }
+
     // =========================================================================
     // init
     // =========================================================================
@@ -94,35 +96,44 @@ public class Sidebar extends JPanel {
             applyButtonActionPerformed();
         });
     }
-    
+
     // =========================================================================
     // listeners
     // =========================================================================
     private void okButtonActionPerformed() {
-        if (View.GENERAL_EXIF_DATA.equals(currentView)
-                || View.MERGE_PRIO.equals(currentView)) {
+        if (View.GENERAL_EXIF_DATA.equals(currentView)) {
             showButtonsForPhotosView();
             mainFrame.getHorizontalSplitPane().setRightComponent(
-                mainFrame.getVerticalSplitPane());
+                    mainFrame.getVerticalSplitPane());
+            SettingsManager.getInstance().saveGeneralExifData(
+                    mainFrame.getGeneralExifDataPanel().getExifData());
+
+        } else if (View.MERGE_PRIO.equals(currentView)) {
+            showButtonsForPhotosView();
+            mainFrame.getHorizontalSplitPane().setRightComponent(
+                    mainFrame.getVerticalSplitPane());
+            SettingsManager.getInstance().saveGeneralExifData(null);
         }
     }
-    
+
     private void applyButtonActionPerformed() {
-        if (View.GENERAL_EXIF_DATA.equals(currentView)
-                || View.MERGE_PRIO.equals(currentView)) {
-            
+        if (View.GENERAL_EXIF_DATA.equals(currentView)) {
+            SettingsManager.getInstance().saveGeneralExifData(
+                    mainFrame.getGeneralExifDataPanel().getExifData());
+        } else if (View.MERGE_PRIO.equals(currentView)) {
+            SettingsManager.getInstance().saveGeneralExifData(null);
         }
     }
-    
+
     private void cancelButtonActionPerformed() {
         if (View.GENERAL_EXIF_DATA.equals(currentView)
                 || View.MERGE_PRIO.equals(currentView)) {
             showButtonsForPhotosView();
             mainFrame.getHorizontalSplitPane().setRightComponent(
-                mainFrame.getVerticalSplitPane());
+                    mainFrame.getVerticalSplitPane());
         }
     }
- 
+
     // =========================================================================
     // enum
     // =========================================================================

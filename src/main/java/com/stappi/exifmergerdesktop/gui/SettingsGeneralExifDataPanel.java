@@ -4,6 +4,8 @@
  */
 package com.stappi.exifmergerdesktop.gui;
 
+import com.stappi.exifmergerdesktop.SettingsManager;
+import com.stappi.exifmergerdesktop.merger.ExifData;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -22,7 +24,7 @@ public class SettingsGeneralExifDataPanel extends JPanel {
     private static final int GRID_LAYOUT_WIDTH = 5;    
     
     private final MainFrame mainFrame;
-    
+      
     private final GridBagConstraints constraints;
     
     private JTextField titleTextField;
@@ -36,16 +38,28 @@ public class SettingsGeneralExifDataPanel extends JPanel {
     private JTextField softwareNameTextField;
     private JTextField entryDateTextField;
     private JTextField copyRightTextField;
+    
+    private ExifData exifData;
         
     public SettingsGeneralExifDataPanel(MainFrame mainFrame) {
         super(new GridBagLayout());
         
         this.mainFrame = mainFrame;
+        
+        this.exifData = SettingsManager.getInstance().getGeneralExifData();
 
         constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
         
         initComponents();
+    }
+        
+    public ExifData getExifData() {
+        exifData.setTitle(titleTextField.getText());
+        exifData.setSubject(subjectTextField.getText());
+        exifData.setComments(commentsTextField.getText());
+        exifData.setAuthors(authorsTextField.getText());
+        return exifData;
     }
     
     private void initComponents() {
@@ -67,10 +81,14 @@ public class SettingsGeneralExifDataPanel extends JPanel {
     private int initExifDataPanelAddDescriptionInfos(int row) {
 
         titleTextField = new JTextField();
+        titleTextField.setText(exifData.getTitle());
         subjectTextField = new JTextField();
+        subjectTextField.setText(exifData.getSubject());
         ratingTextField = new JTextField();
         markingTextField = new JTextField();
+        markingTextField.setText(exifData.getMarkings());
         commentsTextField = new JTextField();
+        commentsTextField.setText(exifData.getComments());
 
         addCaptionRowToGrid("Description", row++);
 
@@ -86,10 +104,15 @@ public class SettingsGeneralExifDataPanel extends JPanel {
     private int initExifDataPanelAddSourceInfos(int row) {
 
         authorsTextField = new JTextField();
+        authorsTextField.setText(exifData.getAuthors());
         recordingDateTextField = new JTextField();
+        recordingDateTextField.setText(exifData.getRecordingDate());
         softwareNameTextField = new JTextField();
+        softwareNameTextField.setText(exifData.getSoftware());
         entryDateTextField = new JTextField();
+//        entryDateTextField.setText(exifData.getE());
         copyRightTextField = new JTextField();
+        copyRightTextField.setText(exifData.getCopyRight());
 
         addCaptionRowToGrid("Source", row++);
 

@@ -15,7 +15,6 @@ public class MainFrame extends JFrame {
 
     private static final int MAIN_FRAME_WIDTH = 1200;
     private static final int MAIN_FRAME_HEIGHT = 750;
-    private static final int SIDEBAR_MIN_WIDTH = 50;
     private static final int SIDEBAR_MAX_WIDTH = 200;
 
     // main panels
@@ -24,7 +23,7 @@ public class MainFrame extends JFrame {
     private Sidebar sidebar;
     private JPanel photoListPanel;
     private JPanel photoDetailsPanel;
-    private JPanel generalExifDataPanel;
+    private SettingsGeneralExifDataPanel generalExifDataPanel;
     private JPanel mergePriorizationPanel;
 
     // photosPanel
@@ -50,32 +49,30 @@ public class MainFrame extends JFrame {
     // =========================================================================
     // update gui
     // =========================================================================
-    
     public JSplitPane getHorizontalSplitPane() {
         return horizontalSplitPane;
     }
-    
+
     public JSplitPane getVerticalSplitPane() {
         return verticalSplitPane;
     }
 
     public Sidebar getSidebar() {
-       return sidebar;
+        return sidebar;
     }
-    
-    public JPanel getGeneralExifDataPanel() {
+
+    public SettingsGeneralExifDataPanel getGeneralExifDataPanel() {
         return generalExifDataPanel;
     }
-    
+
     public JPanel getMergePriorizationPanel() {
         return mergePriorizationPanel;
     }
-    
+
     public PhotoTableModel getPhotoTableModel() {
         return photoTableModel;
     }
-   
-    
+
     // =========================================================================
     // listener
     // =========================================================================
@@ -83,7 +80,6 @@ public class MainFrame extends JFrame {
 
         photoExifDataPanel.setExifDataForPhoto(photo);
         photoViewPanel.showPhotoOnView(photo);
-
     }
 
     // =========================================================================
@@ -116,7 +112,7 @@ public class MainFrame extends JFrame {
         horizontalSplitPane.setLeftComponent(sidebar);
         horizontalSplitPane.setRightComponent(verticalSplitPane);
         horizontalSplitPane.setOneTouchExpandable(true);
-        
+
         // set default position
         horizontalSplitPane.setDividerLocation(200);
         verticalSplitPane.setDividerLocation(getHeight() - 550);
