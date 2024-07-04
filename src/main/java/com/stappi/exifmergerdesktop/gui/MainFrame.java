@@ -5,7 +5,6 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.dnd.DropTarget;
-import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -18,59 +17,49 @@ public class MainFrame extends JFrame {
     private static final int MAIN_FRAME_HEIGHT = 750;
     private static final int SIDEBAR_MIN_WIDTH = 50;
     private static final int SIDEBAR_MAX_WIDTH = 200;
-   
+
     // main panels
     private JSplitPane verticalSplitPane;
     private JSplitPane horizontalSplitPane;
-    private JPanel sidebar;
+    private Sidebar sidebar;
     private JPanel photoListPanel;
     private JPanel photoDetailsPanel;
     private JPanel generalExifDataPanel;
     private JPanel mergePriorizationPanel;
-    
-    // sidebar
-    private JButton toggleSidebarButton;
 
     // photosPanel
     private PhotoTableModel photoTableModel;
-    
+
     // photoDetailsPanel   
-    private PhotoExifDataPanel photoExifDataPanel;
+    private ExifDataPanel photoExifDataPanel;
     private PhotoViewPanel photoViewPanel;
 
     // =========================================================================
     public MainFrame() {
         initMainFrame();
         initMainPanels();
-        initSideBar();
+//        initSideBar();
         initPhotosPanel();
         initExifDataPanel();
         initGeneralExifDataPanel();
         initMergePriorizationPanel();
-        
+
         initMenu();
     }
+    
+    // =========================================================================
+    // update gui
+    // =========================================================================
 
+    
     // =========================================================================
     // listener
     // =========================================================================
-    private void toggleSidebar() {
-        if (toggleSidebarButton.getText().equals("<")) {
-            horizontalSplitPane.setDividerLocation(SIDEBAR_MIN_WIDTH);  // Sidebar einklappen
-            sidebar.setPreferredSize(new Dimension(SIDEBAR_MIN_WIDTH, 0));
-            toggleSidebarButton.setText(">");
-        } else {
-            horizontalSplitPane.setDividerLocation(SIDEBAR_MAX_WIDTH);  // Sidebar ausklappen
-            sidebar.setPreferredSize(new Dimension(SIDEBAR_MAX_WIDTH, 0));
-            toggleSidebarButton.setText("<");
-        }
-    }
-
     private void setExifDataForSelectedPhoto(Photo photo) throws IOException {
 
-        photoExifDataPanel.setExifDataForPhoto(photo);       
+        photoExifDataPanel.setExifDataForPhoto(photo);
         photoViewPanel.showPhotoOnView(photo);
-        
+
     }
 
     // =========================================================================
@@ -93,30 +82,22 @@ public class MainFrame extends JFrame {
         verticalSplitPane.setTopComponent(photoListPanel);
         verticalSplitPane.setBottomComponent(photoDetailsPanel);
 //        verticalSplitPane.setResizeWeight(1.0); // photosPanel height grows higher with main frame
+        verticalSplitPane.setOneTouchExpandable(true);
 
         // create sidebar: |=
         horizontalSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        sidebar = new JPanel();
+        sidebar = new Sidebar(this);
         sidebar.setMinimumSize(new Dimension(SIDEBAR_MAX_WIDTH, 0));
         sidebar.setPreferredSize(new Dimension(SIDEBAR_MAX_WIDTH, 0));
         horizontalSplitPane.setLeftComponent(sidebar);
         horizontalSplitPane.setRightComponent(verticalSplitPane);
-
+        horizontalSplitPane.setOneTouchExpandable(true);
+        
         // set default position
         horizontalSplitPane.setDividerLocation(200);
         verticalSplitPane.setDividerLocation(getHeight() - 550);
 
         getContentPane().add(horizontalSplitPane);
-    }
-
-    private void initSideBar() {
-        toggleSidebarButton = new JButton("<");
-        toggleSidebarButton.addActionListener((ActionEvent e) -> {
-            toggleSidebar();
-        });
-        JPanel buttonPanel = new JPanel(new BorderLayout());
-        buttonPanel.add(toggleSidebarButton, BorderLayout.NORTH);
-        sidebar.add(buttonPanel, BorderLayout.WEST);
     }
 
     private void initPhotosPanel() {
@@ -155,7 +136,7 @@ public class MainFrame extends JFrame {
 
     private void initExifDataPanel() {
 
-        photoExifDataPanel = new PhotoExifDataPanel();
+        photoExifDataPanel = new ExifDataPanel();
         JScrollPane dataScrollPane = new JScrollPane(photoExifDataPanel);
 
         photoViewPanel = new PhotoViewPanel();
@@ -164,25 +145,22 @@ public class MainFrame extends JFrame {
         // add panels
         photoDetailsPanel.add(dataScrollPane, BorderLayout.CENTER);
         photoDetailsPanel.add(photoViewScrollPane, BorderLayout.EAST);
-    }    
-    
-    private void initGeneralExifDataPanel() {
+    }
 
-        generalExifDataPanel = new JPanel(new BorderLayout());
-        JLabel label = new JLabel("Settings");
-        generalExifDataPanel.add(label, BorderLayout.CENTER);
-    }    
-    
+    private void initGeneralExifDataPanel() {
+        generalExifDataPanel = new SettingsGeneralExifDataPanel();
+    }
+
     private void initMergePriorizationPanel() {
 
         mergePriorizationPanel = new JPanel(new BorderLayout());
         JLabel label = new JLabel("Merge Prio");
         mergePriorizationPanel.add(label, BorderLayout.CENTER);
-    }    
+    }
 
     private void initMenu() {
-        setJMenuBar(new Menu(verticalSplitPane, horizontalSplitPane, 
-                sidebar, photoListPanel, photoDetailsPanel, 
+        setJMenuBar(new Menu(verticalSplitPane, horizontalSplitPane,
+                sidebar, photoListPanel, photoDetailsPanel,
                 generalExifDataPanel, mergePriorizationPanel,
                 photoTableModel));
     }

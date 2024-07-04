@@ -47,6 +47,7 @@ public class Menu extends JMenuBar {
     private JMenuItem globalExifDataMenuItem;
     private JMenuItem mergePriorizationMenuItem;
     
+    private JMenuItem resetViewMenuItem;
     private JMenuItem helpMenuItem;
     private JMenuItem aboutMenuItem;
 
@@ -114,6 +115,10 @@ public class Menu extends JMenuBar {
     
     private void mergePriorizationMenuItemActionPerformed() {
         horizontalSplitPane.setRightComponent(mergePriorizationPanel);
+    }
+    
+    private void resetViewMenuItemActionPerformed() {
+        System.out.println("Menu Item Reset View");
     }
 
     private void helpMenuItemActionPerformed() {
@@ -246,6 +251,14 @@ public class Menu extends JMenuBar {
         JMenu helpMenu = new JMenu();
         helpMenu.setText("Help");
 
+        resetViewMenuItem = new JMenuItem();
+        resetViewMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0));
+        resetViewMenuItem.setText("Reset View");
+        resetViewMenuItem.addActionListener((ActionEvent evt) -> {
+            resetViewMenuItemActionPerformed();
+        });
+        helpMenu.add(resetViewMenuItem);
+        
         helpMenuItem = new JMenuItem();
         helpMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0));
         helpMenuItem.setText("Help");

@@ -6,6 +6,8 @@
 package com.stappi.exifmergerdesktop.utilities;
 
 import java.awt.Component;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -13,8 +15,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSeparator;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
@@ -53,5 +58,17 @@ public final class GuiUtilities {
             int maxWidth, int maxHeight) throws IOException {
         BufferedImage bufferedScaledImage = ImageUtilities.loadImage(imgFile, maxWidth, maxHeight);
         label.setIcon(new ImageIcon(bufferedScaledImage));
+    }
+    
+    public static void addPlaceholder2Panel(JPanel panel) {
+        // Platzhalter-Komponente hinzufügen, um das Grid nach oben links zu schieben
+        GridBagConstraints constraints = new GridBagConstraints();  
+        constraints.gridx = 0;
+        constraints.gridy = GridBagConstraints.RELATIVE;
+        constraints.gridwidth = 3; // Reicht über alle Spalten
+        constraints.weightx = 1.0;
+        constraints.weighty = 1.0;
+        constraints.fill = GridBagConstraints.BOTH;
+        panel.add(new JPanel(), constraints);
     }
 }

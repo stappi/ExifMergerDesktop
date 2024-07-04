@@ -6,6 +6,7 @@ package com.stappi.exifmergerdesktop.gui;
 
 import com.stappi.exifmergerdesktop.merger.Photo;
 import com.stappi.exifmergerdesktop.utilities.FileUtilities;
+import com.stappi.exifmergerdesktop.utilities.GuiUtilities;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -22,7 +23,7 @@ import javax.swing.JTextField;
  *
  * @author Michael Stappert
  */
-public class PhotoExifDataPanel extends JPanel {
+public class ExifDataPanel extends JPanel {
 
     private static final int GRID_LAYOUT_WIDTH = 5;
 
@@ -47,7 +48,7 @@ public class PhotoExifDataPanel extends JPanel {
     private JComboBox entryDateComboBox;
     private JComboBox copyRightComboBox;
 
-    public PhotoExifDataPanel() {
+    public ExifDataPanel() {
         super(new GridBagLayout());
 
         constraints = new GridBagConstraints();
@@ -77,13 +78,7 @@ public class PhotoExifDataPanel extends JPanel {
         initExifDataPanelAddSourceInfos(currentRow);
 
         // Platzhalter-Komponente hinzufügen, um das Grid nach oben links zu schieben
-        constraints.gridx = 0;
-        constraints.gridy = GridBagConstraints.RELATIVE;
-        constraints.gridwidth = 3; // Reicht über alle Spalten
-        constraints.weightx = 1.0;
-        constraints.weighty = 1.0;
-        constraints.fill = GridBagConstraints.BOTH;
-        add(new JPanel(), constraints);
+        GuiUtilities.addPlaceholder2Panel(this);
     }
 
     private int initExifDataPanelAddFileInfos(int row) {
