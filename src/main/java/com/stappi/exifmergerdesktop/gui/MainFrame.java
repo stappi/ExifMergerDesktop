@@ -54,6 +54,10 @@ public class MainFrame extends JFrame {
     public JSplitPane getHorizontalSplitPane() {
         return horizontalSplitPane;
     }
+    
+    public JSplitPane getVerticalSplitPane() {
+        return verticalSplitPane;
+    }
 
     public Sidebar getSidebar() {
        return sidebar;

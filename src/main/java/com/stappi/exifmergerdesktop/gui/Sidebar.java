@@ -9,6 +9,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
@@ -19,13 +20,17 @@ import javax.swing.JPanel;
 public class Sidebar extends JPanel {
     
     private final MainFrame mainFrame;
+    
     private final GridBagConstraints constraints;
+    
+    private View currentView;
+    
     private JButton okButton;
     private JButton applyButton;
     private JButton saveButton;
     private JButton saveCopyButton;
     private JButton cancelButton;
-
+    
     public Sidebar(MainFrame mainFrame) {
         super(new GridBagLayout());
 
@@ -39,24 +44,89 @@ public class Sidebar extends JPanel {
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         constraints.insets = new Insets(5, 5, 5, 5);
 
-        add(okButton, constraints);
-        add(cancelButton, constraints);
+        showButtonsForPhotosView();
+    }
+    
+    // =========================================================================
+    // show buttons
+    // =========================================================================
+    public final void showButtonsForPhotosView() {
+        this.removeAll();
+        currentView = View.PHOTOS;
         add(saveButton, constraints);
-        GuiUtilities.addPlaceholder2Panel(this);
+        add(saveCopyButton, constraints);
+        add(new JPanel(), GuiUtilities.createPlaceholderConstraint());
     }
    
-    public void showButtonsForSettingsGeneralExifData() {
+    public final void showButtonsForSettingsGeneralExifData() {
         this.removeAll();
+        this.currentView = View.GENERAL_EXIF_DATA;
         add(okButton, constraints);
         add(applyButton, constraints);
         add(cancelButton, constraints);
-        GuiUtilities.addPlaceholder2Panel(this);
+        add(new JPanel(), GuiUtilities.createPlaceholderConstraint());
     }
     
+    public final void showButtonsForMergePriorization() {
+        this.removeAll();
+        this.currentView = View.MERGE_PRIO;
+        add(okButton, constraints);
+        add(applyButton, constraints);
+        add(cancelButton, constraints);
+        add(new JPanel(), GuiUtilities.createPlaceholderConstraint());
+    }
+    // =========================================================================
+    // init
+    // =========================================================================
     private void initButtons() {
         okButton = new JButton("Ok");
+        okButton.addActionListener((ActionEvent e) -> {
+            okButtonActionPerformed();
+        });
         cancelButton = new JButton("Cancel");
+        cancelButton.addActionListener((ActionEvent e) -> {
+            cancelButtonActionPerformed();
+        });
         saveButton = new JButton("Save");
+        saveCopyButton = new JButton("Copy & Save");
         applyButton = new JButton("Apply");
+        applyButton.addActionListener((ActionEvent e) -> {
+            applyButtonActionPerformed();
+        });
+    }
+    
+    // =========================================================================
+    // listeners
+    // =========================================================================
+    private void okButtonActionPerformed() {
+        if (View.GENERAL_EXIF_DATA.equals(currentView)
+                || View.MERGE_PRIO.equals(currentView)) {
+            showButtonsForPhotosView();
+            mainFrame.getHorizontalSplitPane().setRightComponent(
+                mainFrame.getVerticalSplitPane());
+        }
+    }
+    
+    private void applyButtonActionPerformed() {
+        if (View.GENERAL_EXIF_DATA.equals(currentView)
+                || View.MERGE_PRIO.equals(currentView)) {
+            
+        }
+    }
+    
+    private void cancelButtonActionPerformed() {
+        if (View.GENERAL_EXIF_DATA.equals(currentView)
+                || View.MERGE_PRIO.equals(currentView)) {
+            showButtonsForPhotosView();
+            mainFrame.getHorizontalSplitPane().setRightComponent(
+                mainFrame.getVerticalSplitPane());
+        }
+    }
+ 
+    // =========================================================================
+    // enum
+    // =========================================================================
+    private enum View {
+        PHOTOS, GENERAL_EXIF_DATA, MERGE_PRIO
     }
 }

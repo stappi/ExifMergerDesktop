@@ -60,7 +60,7 @@ public final class GuiUtilities {
         label.setIcon(new ImageIcon(bufferedScaledImage));
     }
     
-    public static void addPlaceholder2Panel(JPanel panel) {
+    public static GridBagConstraints createPlaceholderConstraint() {
         // Platzhalter-Komponente hinzufügen, um das Grid nach oben links zu schieben
         GridBagConstraints constraints = new GridBagConstraints();  
         constraints.gridx = 0;
@@ -69,6 +69,6 @@ public final class GuiUtilities {
         constraints.weightx = 1.0;
         constraints.weighty = 1.0;
         constraints.fill = GridBagConstraints.BOTH;
-        panel.add(new JPanel(), constraints);
+        return constraints;
     }
 }

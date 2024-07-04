@@ -53,7 +53,9 @@ public class Menu extends JMenuBar {
         initHelpMenu();
     }
 
-    // listeners ===============================================================
+    // =========================================================================
+    // listener
+    // =========================================================================
     private void openPhotosMenuItemActionPerformed() {
         List<Photo> newPhotos = Photo.loadPhotos(GuiUtilities.showPhotosChooser(
                 this, mainFrame.getPhotoTableModel().getLastAddedPhotoFile()));
@@ -100,6 +102,7 @@ public class Menu extends JMenuBar {
     private void mergePriorizationMenuItemActionPerformed() {
         mainFrame.getHorizontalSplitPane().setRightComponent(
                 mainFrame.getMergePriorizationPanel());
+        mainFrame.getSidebar().showButtonsForMergePriorization();
     }
 
     private void resetViewMenuItemActionPerformed() {
@@ -114,7 +117,9 @@ public class Menu extends JMenuBar {
         System.out.println("Menu Item Global About");
     }
 
-    // init ====================================================================
+    // =========================================================================
+    // init
+    // =========================================================================
     private void initFileMenu() {
 
         JMenu fileMenu = new JMenu();

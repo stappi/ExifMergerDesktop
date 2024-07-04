@@ -78,7 +78,7 @@ public class ExifDataPanel extends JPanel {
         initExifDataPanelAddSourceInfos(currentRow);
 
         // Platzhalter-Komponente hinzufügen, um das Grid nach oben links zu schieben
-        GuiUtilities.addPlaceholder2Panel(this);
+        add(new JPanel(), GuiUtilities.createPlaceholderConstraint());
     }
 
     private int initExifDataPanelAddFileInfos(int row) {
