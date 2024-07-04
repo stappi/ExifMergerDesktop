@@ -5,7 +5,6 @@
 package com.stappi.exifmergerdesktop.gui;
 
 import com.stappi.exifmergerdesktop.utilities.GuiUtilities;
-import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -18,8 +17,9 @@ import javax.swing.JPanel;
  * @author Michael Stappert
  */
 public class Sidebar extends JPanel {
-
-    private MainFrame mainFrame;
+    
+    private final MainFrame mainFrame;
+    private final GridBagConstraints constraints;
     private JButton okButton;
     private JButton applyButton;
     private JButton saveButton;
@@ -27,27 +27,36 @@ public class Sidebar extends JPanel {
     private JButton cancelButton;
 
     public Sidebar(MainFrame mainFrame) {
+        super(new GridBagLayout());
 
         this.mainFrame = mainFrame;
+        
+        initButtons();
 
-        setLayout(new GridBagLayout());
-
-        GridBagConstraints constraints = new GridBagConstraints();
+        this.constraints = new GridBagConstraints();       
         constraints.weightx = 1;
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         constraints.insets = new Insets(5, 5, 5, 5);
 
-        okButton = new JButton("Ok");
         add(okButton, constraints);
-
-        cancelButton = new JButton("Cancel");
         add(cancelButton, constraints);
-
-        saveButton = new JButton("Save");
         add(saveButton, constraints);
-
-        // Platzhalter-Komponente hinzufügen, um das Grid nach oben links zu schieben
         GuiUtilities.addPlaceholder2Panel(this);
+    }
+   
+    public void showButtonsForSettingsGeneralExifData() {
+        this.removeAll();
+        add(okButton, constraints);
+        add(applyButton, constraints);
+        add(cancelButton, constraints);
+        GuiUtilities.addPlaceholder2Panel(this);
+    }
+    
+    private void initButtons() {
+        okButton = new JButton("Ok");
+        cancelButton = new JButton("Cancel");
+        saveButton = new JButton("Save");
+        applyButton = new JButton("Apply");
     }
 }

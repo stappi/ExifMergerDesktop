@@ -23,66 +23,48 @@ import javax.swing.JSplitPane;
  * @author Michael Stappert
  */
 public class Menu extends JMenuBar {
-    
-    private final JSplitPane verticalSplitPane;
-    private final JSplitPane horizontalSplitPane;
-    private final JPanel sidebar;
-    private final JPanel photoListPanel;
-    private final JPanel photoDetailsPanel;
-    private final JPanel generalExifDataPanel;
-    private final JPanel mergePriorizationPanel;
-    private final PhotoTableModel photoTableModel;
-    
+
+    private final MainFrame mainFrame;
+
     private JMenuItem exitMenuItem;
-    
+
     private JMenuItem openPhotosMenuItem;
     private JMenuItem openFolderMenuItem;
     private JMenuItem saveMenuItem;
     private JMenuItem saveCopyMenuItem;
     private JMenuItem clearPhotoTableMenuItem;
-    
+
     private JMenuItem loadMenuItem;
     private JMenuItem removeMenuItem;
-    
+
     private JMenuItem globalExifDataMenuItem;
     private JMenuItem mergePriorizationMenuItem;
-    
+
     private JMenuItem resetViewMenuItem;
     private JMenuItem helpMenuItem;
     private JMenuItem aboutMenuItem;
 
-    public Menu(JSplitPane verticalSplitPane, JSplitPane horizontalSplitPane, 
-            JPanel sidebar, JPanel photoListPanel, JPanel photoDetailsPanel, 
-            JPanel generalExifDataPanel, JPanel mergePriorizationPanel, 
-            PhotoTableModel photoTableModel) {
-        this.verticalSplitPane = verticalSplitPane;
-        this.horizontalSplitPane = horizontalSplitPane;
-        this.sidebar = sidebar;
-        this.photoListPanel = photoListPanel;
-        this.photoDetailsPanel = photoDetailsPanel;
-        this.generalExifDataPanel = generalExifDataPanel;
-        this.mergePriorizationPanel = mergePriorizationPanel;
-        this.photoTableModel = photoTableModel;
-        initFileMenu();            
-        initPhotosMenu();            
-        initPhotoReferenceMenu();            
-        initSettingsMenu();            
-        initHelpMenu();            
+    public Menu(MainFrame mainFrame) {
+        this.mainFrame = mainFrame;
+        initFileMenu();
+        initPhotosMenu();
+        initPhotoReferenceMenu();
+        initSettingsMenu();
+        initHelpMenu();
     }
-    
+
     // listeners ===============================================================
-    
     private void openPhotosMenuItemActionPerformed() {
         List<Photo> newPhotos = Photo.loadPhotos(GuiUtilities.showPhotosChooser(
-                this, photoTableModel.getLastAddedPhotoFile()));
-        photoTableModel.addPhotos(newPhotos);
+                this, mainFrame.getPhotoTableModel().getLastAddedPhotoFile()));
+        mainFrame.getPhotoTableModel().addPhotos(newPhotos);
     }
 
     private void openFolderMenuItemActionPerformed() {
         File directory = GuiUtilities.showDirectoryChooser(
-                this, photoTableModel.getLastAddedPhotoFile());
+                this, mainFrame.getPhotoTableModel().getLastAddedPhotoFile());
         List<Photo> newPhotos = Photo.loadPhotosFromDir(directory);
-        photoTableModel.addPhotos(newPhotos);
+        mainFrame.getPhotoTableModel().addPhotos(newPhotos);
     }
 
     private void saveMenuItemActionPerformed() {
@@ -94,7 +76,7 @@ public class Menu extends JMenuBar {
     }
 
     private void clearPhotoTableMenuItemActionPerformed() {
-        photoTableModel.clear();
+        mainFrame.getPhotoTableModel().clear();
     }
 
     private void exitMenuItemActionPerformed() {
@@ -110,13 +92,16 @@ public class Menu extends JMenuBar {
     }
 
     private void globalExifDataMenuItemActionPerformed() {
-        horizontalSplitPane.setRightComponent(generalExifDataPanel);
+        mainFrame.getHorizontalSplitPane().setRightComponent(
+                mainFrame.getGeneralExifDataPanel());
+        mainFrame.getSidebar().showButtonsForSettingsGeneralExifData();
     }
-    
+
     private void mergePriorizationMenuItemActionPerformed() {
-        horizontalSplitPane.setRightComponent(mergePriorizationPanel);
+        mainFrame.getHorizontalSplitPane().setRightComponent(
+                mainFrame.getMergePriorizationPanel());
     }
-    
+
     private void resetViewMenuItemActionPerformed() {
         System.out.println("Menu Item Reset View");
     }
@@ -128,12 +113,11 @@ public class Menu extends JMenuBar {
     private void aboutMenuItemActionPerformed() {
         System.out.println("Menu Item Global About");
     }
-    
+
     // init ====================================================================
-    
     private void initFileMenu() {
-        
-        JMenu fileMenu = new JMenu();        
+
+        JMenu fileMenu = new JMenu();
         fileMenu.setText("File");
 
         exitMenuItem = new JMenuItem();
@@ -145,11 +129,11 @@ public class Menu extends JMenuBar {
         });
         fileMenu.add(exitMenuItem);
 
-        add(fileMenu);        
+        add(fileMenu);
     }
-    
+
     private void initPhotosMenu() {
-        
+
         JMenu photosMenu = new JMenu();
         photosMenu.setText("Photos");
 
@@ -198,13 +182,13 @@ public class Menu extends JMenuBar {
             clearPhotoTableMenuItemActionPerformed();
         });
         photosMenu.add(clearPhotoTableMenuItem);
-        
+
         add(photosMenu);
     }
-    
+
     private void initPhotoReferenceMenu() {
-        
-        JMenu photoReferenceMenu = new JMenu();                
+
+        JMenu photoReferenceMenu = new JMenu();
         photoReferenceMenu.setText("Reference");
 
         loadMenuItem = new JMenuItem();
@@ -223,10 +207,10 @@ public class Menu extends JMenuBar {
 
         add(photoReferenceMenu);
     }
-    
+
     private void initSettingsMenu() {
-        
-        JMenu settingsMenu = new JMenu();        
+
+        JMenu settingsMenu = new JMenu();
         settingsMenu.setText("Settings");
 
         globalExifDataMenuItem = new JMenuItem();
@@ -245,9 +229,9 @@ public class Menu extends JMenuBar {
 
         add(settingsMenu);
     }
-    
+
     private void initHelpMenu() {
-        
+
         JMenu helpMenu = new JMenu();
         helpMenu.setText("Help");
 
@@ -258,7 +242,7 @@ public class Menu extends JMenuBar {
             resetViewMenuItemActionPerformed();
         });
         helpMenu.add(resetViewMenuItem);
-        
+
         helpMenuItem = new JMenuItem();
         helpMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0));
         helpMenuItem.setText("Help");
@@ -276,5 +260,5 @@ public class Menu extends JMenuBar {
 
         add(helpMenu);
     }
-    
+
 }

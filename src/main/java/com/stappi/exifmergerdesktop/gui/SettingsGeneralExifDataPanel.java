@@ -19,7 +19,9 @@ import javax.swing.JTextField;
  */
 public class SettingsGeneralExifDataPanel extends JPanel {
 
-    private static final int GRID_LAYOUT_WIDTH = 5;
+    private static final int GRID_LAYOUT_WIDTH = 5;    
+    
+    private final MainFrame mainFrame;
     
     private final GridBagConstraints constraints;
     
@@ -34,9 +36,11 @@ public class SettingsGeneralExifDataPanel extends JPanel {
     private JTextField softwareNameTextField;
     private JTextField entryDateTextField;
     private JTextField copyRightTextField;
-    
-    public SettingsGeneralExifDataPanel() {
+        
+    public SettingsGeneralExifDataPanel(MainFrame mainFrame) {
         super(new GridBagLayout());
+        
+        this.mainFrame = mainFrame;
 
         constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;

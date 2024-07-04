@@ -50,7 +50,27 @@ public class MainFrame extends JFrame {
     // =========================================================================
     // update gui
     // =========================================================================
+    
+    public JSplitPane getHorizontalSplitPane() {
+        return horizontalSplitPane;
+    }
 
+    public Sidebar getSidebar() {
+       return sidebar;
+    }
+    
+    public JPanel getGeneralExifDataPanel() {
+        return generalExifDataPanel;
+    }
+    
+    public JPanel getMergePriorizationPanel() {
+        return mergePriorizationPanel;
+    }
+    
+    public PhotoTableModel getPhotoTableModel() {
+        return photoTableModel;
+    }
+   
     
     // =========================================================================
     // listener
@@ -148,7 +168,7 @@ public class MainFrame extends JFrame {
     }
 
     private void initGeneralExifDataPanel() {
-        generalExifDataPanel = new SettingsGeneralExifDataPanel();
+        generalExifDataPanel = new SettingsGeneralExifDataPanel(this);
     }
 
     private void initMergePriorizationPanel() {
@@ -159,9 +179,6 @@ public class MainFrame extends JFrame {
     }
 
     private void initMenu() {
-        setJMenuBar(new Menu(verticalSplitPane, horizontalSplitPane,
-                sidebar, photoListPanel, photoDetailsPanel,
-                generalExifDataPanel, mergePriorizationPanel,
-                photoTableModel));
+        setJMenuBar(new Menu(this));
     }
 }
