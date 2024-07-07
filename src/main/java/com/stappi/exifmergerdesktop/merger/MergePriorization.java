@@ -26,8 +26,9 @@ public class MergePriorization {
     );
     private List<ExifDataSource> title = DEFAULT_ORDER;
     private List<ExifDataSource> subject = DEFAULT_ORDER;
-    private List<ExifDataSource> markings = DEFAULT_ORDER;
-    private List<ExifDataSource> comments = DEFAULT_ORDER;
+    private List<ExifDataSource> rating = DEFAULT_ORDER;
+    private List<ExifDataSource> keywords = DEFAULT_ORDER;
+    private List<ExifDataSource> comment = DEFAULT_ORDER;
     private List<ExifDataSource> authors = DEFAULT_ORDER;
     private List<ExifDataSource> recordingDate = DEFAULT_ORDER;
     private List<ExifDataSource> software = DEFAULT_ORDER;

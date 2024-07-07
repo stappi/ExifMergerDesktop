@@ -30,7 +30,7 @@ public class SettingsGeneralExifDataPanel extends JPanel {
     private JTextField titleTextField;
     private JTextField subjectTextField;
     private JTextField ratingTextField;
-    private JTextField markingTextField;
+    private JTextField keywordsTextField;
     private JTextField commentsTextField;
 
     private JTextField authorsTextField;
@@ -85,8 +85,8 @@ public class SettingsGeneralExifDataPanel extends JPanel {
         subjectTextField = new JTextField();
         subjectTextField.setText(exifData.getSubject());
         ratingTextField = new JTextField();
-        markingTextField = new JTextField();
-        markingTextField.setText(exifData.getMarkings());
+        keywordsTextField = new JTextField();
+        keywordsTextField.setText(exifData.getKeywords());
         commentsTextField = new JTextField();
         commentsTextField.setText(exifData.getComments());
 
@@ -95,7 +95,7 @@ public class SettingsGeneralExifDataPanel extends JPanel {
         addRowToGrid("Title:", titleTextField, row++);
         addRowToGrid("Subject:", subjectTextField, row++);
         addRowToGrid("Rating:", ratingTextField, row++);
-        addRowToGrid("Marking:", markingTextField, row++);
+        addRowToGrid("Keywords:", keywordsTextField, row++);
         addRowToGrid("Comments:", commentsTextField, row++);
 
         return row;

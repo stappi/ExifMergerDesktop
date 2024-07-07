@@ -17,7 +17,7 @@ public class ExifData {
     
     private String title;
     private String subject;
-    private String markings;
+    private String keywords;
     private String comments;
     private String authors;
     private String recordingDate;

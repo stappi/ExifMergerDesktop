@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.stappi.exifmergerdesktop.merger;
 
 import com.stappi.exifmergerdesktop.SettingsManager;
@@ -22,6 +18,7 @@ import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import javax.security.auth.Subject;
 import org.apache.commons.imaging.Imaging;
 import org.apache.commons.imaging.ImagingException;
 import org.apache.commons.imaging.common.GenericImageMetadata.GenericImageMetadataItem;
@@ -54,7 +51,13 @@ public class Photo implements Comparable<Photo> {
     private File referencePhoto;
 
     private ExifDataValue title;
+    private ExifDataValue subject;
+    private ExifDataValue rating;
+    private ExifDataValue marking;
+    private ExifDataValue keywords;
+    private ExifDataValue comment;
     private ExifDataValue recordingDateTime;
+    private ExifDataValue authors;
 
     private JpegImageMetadata jpegMetadataOriginal;
 
@@ -92,7 +95,7 @@ public class Photo implements Comparable<Photo> {
     }
 
     // description =============================================================
-    public String[] geTitleValues() {
+    public String[] getTitleValues() {
 
         if (title == null) {
             title = ExifDataValue.builder()
@@ -108,6 +111,95 @@ public class Photo implements Comparable<Photo> {
 
     public void seTitle(String title) {
         this.title.setValue(title);
+    }
+
+    public String[] getSubjectValues() {
+
+        if (subject == null) {
+            subject = ExifDataValue.builder()
+                    .mergePrio(SETTINGS.getMergePriorization().getSubject())
+                    .original(getTagValue(jpegMetadataOriginal, MicrosoftTagConstants.EXIF_TAG_XPSUBJECT))
+                    .reference(null)
+                    .settingsValue(SETTINGS.getGeneralExifData().getSubject())
+                    .build();
+        }
+
+        return subject.getValues();
+    }
+
+    public void setSubject(String subject) {
+        this.subject.setValue(subject);
+    }
+
+    public String[] getRating() {
+
+        if (rating == null) {
+            rating = ExifDataValue.builder()
+                    .mergePrio(SETTINGS.getMergePriorization().getRating())
+                    .original(getTagValue(jpegMetadataOriginal, MicrosoftTagConstants.EXIF_TAG_RATING))
+                    .reference(null)
+                    .build();
+        }
+
+        return rating.getValues();
+    }
+
+    public void setRating(String rating) {
+        this.rating.setValue(rating);
+    }
+
+    public String[] getKeywordValues() {
+
+        if (keywords == null) {
+            keywords = ExifDataValue.builder()
+                    .mergePrio(SETTINGS.getMergePriorization().getKeywords())
+                    .original(getTagValue(jpegMetadataOriginal, MicrosoftTagConstants.EXIF_TAG_XPKEYWORDS))
+                    .reference(null)
+                    .settingsValue(SETTINGS.getGeneralExifData().getKeywords())
+                    .build();
+        }
+
+        return keywords.getValues();
+    }
+
+    public void setKeywords(String keywords) {
+        this.keywords.setValue(keywords);
+    }
+    
+    public String[] getCommentValues() {
+
+        if (comment == null) {
+            comment = ExifDataValue.builder()
+                    .mergePrio(SETTINGS.getMergePriorization().getComment())
+                    .original(getTagValue(jpegMetadataOriginal, MicrosoftTagConstants.EXIF_TAG_XPCOMMENT))
+                    .reference(null)
+                    .settingsValue(SETTINGS.getGeneralExifData().getSubject())
+                    .build();
+        }
+
+        return comment.getValues();
+    }
+
+    public void setComment(String comment) {
+        this.comment.setValue(comment);
+    }
+
+    public String[] getAuthors() {
+
+        if (authors == null) {
+            authors = ExifDataValue.builder()
+                    .mergePrio(SETTINGS.getMergePriorization().getAuthors())
+                    .original(getTagValue(jpegMetadataOriginal, MicrosoftTagConstants.EXIF_TAG_XPAUTHOR))
+                    .reference(null)
+                    .settingsValue(SETTINGS.getGeneralExifData().getSubject())
+                    .build();
+        }
+
+        return authors.getValues();
+    }
+
+    public void setAuthors(String authors) {
+        this.authors.setValue(authors);
     }
 
     // source ==================================================================

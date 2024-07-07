@@ -36,7 +36,7 @@ public class ExifDataPanel extends JPanel {
     private JComboBox titleComboBox;
     private JComboBox subjectComboBox;
     private JComboBox ratingComboBox;
-    private JComboBox markingComboBox;
+    private JComboBox keywordsComboBox;
     private JComboBox commentsComboBox;
 
     private JComboBox authorsComboBox;
@@ -63,11 +63,14 @@ public class ExifDataPanel extends JPanel {
         lastModifiedLabel.setText(photo.getLastModified());
         changeDateLabel.setText(photo.getCreationTime());
         
-        titleComboBox.setModel(new DefaultComboBoxModel(photo.geTitleValues()));
-//        titleComboBox
+        titleComboBox.setModel(new DefaultComboBoxModel(photo.getTitleValues()));
+        subjectComboBox.setModel(new DefaultComboBoxModel(photo.getSubjectValues()));
+        ratingComboBox.setModel(new DefaultComboBoxModel(photo.getRating()));
+        commentsComboBox.setModel(new DefaultComboBoxModel(photo.getCommentValues()));
+        keywordsComboBox.setModel(new DefaultComboBoxModel(photo.getKeywordValues()));
+        authorsComboBox.setModel(new DefaultComboBoxModel(photo.getAuthors()));
 
         recordingDateComboBox.setModel(new DefaultComboBoxModel(photo.getRecordingDateTimeValues()));
-//        recordingDateComboBox.setSelectedIndex(0);
     }
 
     private void initComponents() {
@@ -110,8 +113,8 @@ public class ExifDataPanel extends JPanel {
         subjectComboBox.setEditable(true);
         ratingComboBox = new JComboBox();
         ratingComboBox.setEditable(true);
-        markingComboBox = new JComboBox();
-        markingComboBox.setEditable(true);
+        keywordsComboBox = new JComboBox();
+        keywordsComboBox.setEditable(true);
         commentsComboBox = new JComboBox();
         commentsComboBox.setEditable(true);
 
@@ -120,7 +123,7 @@ public class ExifDataPanel extends JPanel {
         addRowToGrid("Title:", titleComboBox, row++);
         addRowToGrid("Subject:", subjectComboBox, row++);
         addRowToGrid("Rating:", ratingComboBox, row++);
-        addRowToGrid("Marking:", markingComboBox, row++);
+        addRowToGrid("Marking:", keywordsComboBox, row++);
         addRowToGrid("Comments:", commentsComboBox, row++);
 
         return row;
