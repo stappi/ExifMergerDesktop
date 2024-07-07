@@ -67,6 +67,12 @@ public class PhotoTableModel extends DefaultTableModel {
         return this.photos.get(index);
     }
     
+    @Override
+    public void removeRow(int row) {
+        super.removeRow(row);
+        this.photos.remove(row);
+    }
+    
     private void setPhotos(List<Photo> newPhotos) {
 
         this.lastAddedPhoto = !newPhotos.isEmpty()

@@ -80,6 +80,13 @@ public class PhotoTablePanel extends JPanel {
             }
         });
         popupMenu.add(printExifInfoMenuItem);
+        JMenuItem closePhotoMenuItem = new JMenuItem("Close Photo");
+        closePhotoMenuItem.addActionListener(event -> {
+            if (photosTable.getSelectedRow() != -1) {
+                photoTableModel.removeRow(photosTable.getSelectedRow());
+            }
+        });
+        popupMenu.add(closePhotoMenuItem);
         photosTable.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
