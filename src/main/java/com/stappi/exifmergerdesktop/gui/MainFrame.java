@@ -5,6 +5,8 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.dnd.DropTarget;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -21,13 +23,13 @@ public class MainFrame extends JFrame {
     private JSplitPane verticalSplitPane;
     private JSplitPane horizontalSplitPane;
     private Sidebar sidebar;
-    private JPanel photoListPanel;
+    private PhotoTablePanel photoListPanel;
     private JPanel photoDetailsPanel;
     private SettingsGeneralExifDataPanel generalExifDataPanel;
     private JPanel mergePriorizationPanel;
-
-    // photosPanel
-    private PhotoTableModel photoTableModel;
+//
+//    // photosPanel
+//    private PhotoTableModel photoTableModel;
 
     // photoDetailsPanel   
     private ExifDataPanel photoExifDataPanel;
@@ -38,7 +40,7 @@ public class MainFrame extends JFrame {
         initMainFrame();
         initMainPanels();
 //        initSideBar();
-        initPhotosPanel();
+//        initPhotosPanel();
         initExifDataPanel();
         initGeneralExifDataPanel();
         initMergePriorizationPanel();
@@ -68,9 +70,17 @@ public class MainFrame extends JFrame {
     public JPanel getMergePriorizationPanel() {
         return mergePriorizationPanel;
     }
-
-    public PhotoTableModel getPhotoTableModel() {
-        return photoTableModel;
+    
+    public ExifDataPanel getExifDataPanel() {
+        return photoExifDataPanel;
+    }
+    
+    public PhotoViewPanel getPhotoViewPanel() {
+        return this.photoViewPanel;
+    }
+    
+    public PhotoTablePanel getPhotoTablePanel() {
+        return photoListPanel;
     }
 
     // =========================================================================
@@ -78,7 +88,7 @@ public class MainFrame extends JFrame {
     // =========================================================================
     private void setExifDataForSelectedPhoto(Photo photo) throws IOException {
 
-        photoExifDataPanel.setExifDataForPhoto(photo);
+        photoExifDataPanel.mergeExifDataForPhoto(photo);
         photoViewPanel.showPhotoOnView(photo);
     }
 
@@ -97,7 +107,7 @@ public class MainFrame extends JFrame {
 
         // create main panels for displaying photos and exif data: =
         verticalSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-        photoListPanel = new JPanel(new BorderLayout());
+        photoListPanel = new PhotoTablePanel(this);
         photoDetailsPanel = new JPanel(new BorderLayout());
         verticalSplitPane.setTopComponent(photoListPanel);
         verticalSplitPane.setBottomComponent(photoDetailsPanel);
@@ -120,39 +130,63 @@ public class MainFrame extends JFrame {
         getContentPane().add(horizontalSplitPane);
     }
 
-    private void initPhotosPanel() {
-        // Hinzufügen des Suchfelds und der Buttons im oberen Panel
-        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JTextField searchField = new JTextField(20);
-        JButton selectAllButton = new JButton("Select all");
-        JButton deselectAllButton = new JButton("Deselect all");
-
-        searchPanel.add(new JLabel("Search:"));
-        searchPanel.add(searchField);
-//        searchPanel.add(selectAllButton);
-//        searchPanel.add(deselectAllButton);
-
-        // Erstellen der Tabelle
-        photoTableModel = new PhotoTableModel();
-        JTable photosTable = new JTable(photoTableModel);
-        photosTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        photosTable.getSelectionModel().addListSelectionListener((ListSelectionEvent event) -> {
-            if (!event.getValueIsAdjusting() && photosTable.getSelectedRow() != -1) {
-                try {
-                    setExifDataForSelectedPhoto(photoTableModel.getPhotoAt(photosTable.getSelectedRow()));
-                } catch (IOException ex) {
-                    Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-        });
-        JScrollPane tableScrollPane = new JScrollPane(photosTable);
-
-        photoListPanel.add(searchPanel, BorderLayout.NORTH);
-        photoListPanel.add(tableScrollPane, BorderLayout.CENTER);
-
-        // drag and drop photos to table
-        new DropTarget(photoListPanel, new DropPhotoListListener(photoTableModel));
-    }
+//    private void initPhotosPanel() {
+//        // Hinzufügen des Suchfelds und der Buttons im oberen Panel
+//        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+//        JTextField searchField = new JTextField(20);
+//        JButton selectAllButton = new JButton("Select all");
+//        JButton deselectAllButton = new JButton("Deselect all");
+//
+//        searchPanel.add(new JLabel("Search:"));
+//        searchPanel.add(searchField);
+////        searchPanel.add(selectAllButton);
+////        searchPanel.add(deselectAllButton);
+//
+//        // Erstellen der Tabelle
+//        photoTableModel = new PhotoTableModel();
+//        JTable photosTable = new JTable(photoTableModel);
+//        photosTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+//        photosTable.getSelectionModel().addListSelectionListener((ListSelectionEvent event) -> {
+//            if (!event.getValueIsAdjusting() && photosTable.getSelectedRow() != -1) {
+//                try {
+//                    setExifDataForSelectedPhoto(photoTableModel.getPhotoAt(photosTable.getSelectedRow()));
+//                } catch (IOException ex) {
+//                    Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+//                }
+//            }
+//        });
+//        JScrollPane tableScrollPane = new JScrollPane(photosTable);
+//        
+//        // context menu
+//        JPopupMenu popupMenu = new JPopupMenu();
+//        JMenuItem printExifInfoMenuItem = new JMenuItem("Print Exif Info");
+//        printExifInfoMenuItem.addActionListener(e -> {
+//            // Handle delete action here
+//            // Get the selected row using table.getSelectedRow()
+//            // Perform the delete operation
+////            photoTableModel.getLastAddedPhoto().
+//        });
+//        popupMenu.add(printExifInfoMenuItem);
+//        photosTable.addMouseListener(new MouseAdapter() {
+//            @Override
+//            public void mousePressed(MouseEvent e) {
+//                if (e.getButton() == MouseEvent.BUTTON3) { // Right-click
+//                    int row = photosTable.rowAtPoint(e.getPoint());
+//                    int column = photosTable.columnAtPoint(e.getPoint());
+//                    if (!photosTable.isRowSelected(row)) {
+//                        photosTable.changeSelection(row, column, false, false);
+//                    }
+//                    popupMenu.show(e.getComponent(), e.getX(), e.getY());
+//                }
+//            }
+//        });
+//        
+//        photoListPanel.add(searchPanel, BorderLayout.NORTH);
+//        photoListPanel.add(tableScrollPane, BorderLayout.CENTER);
+//
+//        // drag and drop photos to table
+//        new DropTarget(photoListPanel, new DropPhotoListListener(photoTableModel));
+//    }
 
     private void initExifDataPanel() {
 

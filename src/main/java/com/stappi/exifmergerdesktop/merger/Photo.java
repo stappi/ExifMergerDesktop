@@ -4,6 +4,7 @@
  */
 package com.stappi.exifmergerdesktop.merger;
 
+import com.stappi.exifmergerdesktop.SettingsManager;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
@@ -14,17 +15,21 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import org.apache.commons.imaging.Imaging;
+import org.apache.commons.imaging.ImagingException;
+import org.apache.commons.imaging.common.GenericImageMetadata.GenericImageMetadataItem;
 import org.apache.commons.imaging.common.ImageMetadata;
+import org.apache.commons.imaging.common.ImageMetadata.ImageMetadataItem;
 import org.apache.commons.imaging.formats.jpeg.JpegImageMetadata;
-import org.apache.commons.imaging.formats.tiff.TiffField;
 import org.apache.commons.imaging.formats.tiff.constants.ExifTagConstants;
+import org.apache.commons.imaging.formats.tiff.constants.MicrosoftTagConstants;
 import org.apache.commons.imaging.formats.tiff.taginfos.TagInfo;
 
 /**
@@ -42,11 +47,14 @@ public class Photo implements Comparable<Photo> {
 
     private static final long BYTE_TO_MB = 1024L * 1024;
 
+    private static final SettingsManager SETTINGS = SettingsManager.getInstance();
+
     private final File file;
 
     private File referencePhoto;
 
-    private String recordingDateTime;
+    private ExifDataValue title;
+    private ExifDataValue recordingDateTime;
 
     private JpegImageMetadata jpegMetadataOriginal;
 
@@ -84,33 +92,70 @@ public class Photo implements Comparable<Photo> {
     }
 
     // description =============================================================
-    // source ==================================================================
-    public String getRecordingDateTime() {
-        if (recordingDateTime == null) {
-            recordingDateTime = getTagValue(jpegMetadataOriginal,
-                    ExifTagConstants.EXIF_TAG_DATE_TIME_ORIGINAL);
+    public String[] geTitleValues() {
+
+        if (title == null) {
+            title = ExifDataValue.builder()
+                    .mergePrio(SETTINGS.getMergePriorization().getTitle())
+                    .original(getTagValue(jpegMetadataOriginal, MicrosoftTagConstants.EXIF_TAG_XPTITLE))
+                    .reference(null)
+                    .settingsValue(SETTINGS.getGeneralExifData().getTitle())
+                    .build();
         }
-        return recordingDateTime;
+
+        return title.getValues();
     }
 
-    public String[] getRecordingDateTimeValues() {
-        List<String> values = new ArrayList<>();
-        values.add(getRecordingDateTime());
+    public void seTitle(String title) {
+        this.title.setValue(title);
+    }
 
-        String recordingDateTimeOriginal = getTagValue(jpegMetadataOriginal,
-                ExifTagConstants.EXIF_TAG_DATE_TIME_ORIGINAL);
-        if (!recordingDateTimeOriginal.isEmpty()) {
-            values.add(recordingDateTimeOriginal);
+    // source ==================================================================
+    public String[] getRecordingDateTimeValues() {
+
+        if (recordingDateTime == null) {
+            recordingDateTime = ExifDataValue.builder()
+                    .mergePrio(SETTINGS.getMergePriorization().getRecordingDate())
+                    .original(getTagValue(jpegMetadataOriginal, ExifTagConstants.EXIF_TAG_DATE_TIME_ORIGINAL))
+                    .reference(null)
+                    .settingsValue(SETTINGS.getGeneralExifData().getRecordingDate())
+                    .build();
         }
 
-        return values.toArray(new String[values.size()]);
+        return recordingDateTime.getValues();
     }
 
     public void setRecordingDateTime(String recordingDateTime) {
-        this.recordingDateTime = recordingDateTime;
+        this.recordingDateTime.setValue(recordingDateTime);
     }
 
     // =========================================================================
+    public Map<String, String> getMetadataAsMap() {
+
+        Map<String, String> map = new LinkedHashMap<>();
+
+        try {
+            ImageMetadata metadata = Imaging.getMetadata(file);
+
+            if (metadata instanceof JpegImageMetadata jpegImageMetadata) {
+                final JpegImageMetadata jpegMetadata = jpegImageMetadata;
+
+                final List<ImageMetadataItem> items = jpegMetadata.getItems();
+
+                for (int i = 0; i < items.size(); i++) {
+                    final ImageMetadataItem item = items.get(i);
+                    if (item instanceof GenericImageMetadataItem gItem) {
+
+                        map.put(gItem.getKeyword(), gItem.getText());
+                    }
+                }
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(Photo.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return map;
+    }
+
     @Override
     public int compareTo(Photo photo) {
         return this.file.getAbsolutePath().compareTo(photo.getFile().getAbsolutePath());
@@ -167,10 +212,23 @@ public class Photo implements Comparable<Photo> {
     }
 
     // private =================================================================
+//    private String getTagValue(JpegImageMetadata jpegMetadata, TagInfo tagInfo) {
+//        return Optional.ofNullable(jpegMetadata)
+//                .map(metadata -> metadata.findExifValueWithExactMatch(tagInfo))
+//                .map(TiffField::getValueDescription)
+//                .orElse("");
+//    }
     private String getTagValue(JpegImageMetadata jpegMetadata, TagInfo tagInfo) {
-        return Optional.ofNullable(jpegMetadata)
-                .map(metadata -> metadata.findExifValueWithExactMatch(tagInfo))
-                .map(TiffField::getValueDescription)
-                .orElse("");
+        if (jpegMetadata == null) {
+            return "";
+        }
+
+        try {
+            Object fieldValue = jpegMetadata.getExif().getFieldValue(tagInfo);
+            return fieldValue != null ? fieldValue.toString() : "";
+        } catch (ImagingException ex) {
+            Logger.getLogger(Photo.class.getName()).log(Level.SEVERE, null, ex);
+            return "";
+        }
     }
 }

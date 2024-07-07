@@ -28,7 +28,7 @@ public class PhotoTableModel extends DefaultTableModel {
     private List<Photo> photos;
 
     private Photo lastAddedPhoto;
-
+    
     public PhotoTableModel() {
         setDataVector(new Object[][]{}, COLUMN_NAMES);
     }
@@ -66,7 +66,7 @@ public class PhotoTableModel extends DefaultTableModel {
     public Photo getPhotoAt(int index) {
         return this.photos.get(index);
     }
-
+    
     private void setPhotos(List<Photo> newPhotos) {
 
         this.lastAddedPhoto = !newPhotos.isEmpty()

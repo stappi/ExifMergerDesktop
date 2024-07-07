@@ -1,7 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package com.stappi.exifmergerdesktop.gui;
 
 import com.stappi.exifmergerdesktop.merger.Photo;
@@ -57,7 +54,7 @@ public class ExifDataPanel extends JPanel {
         initComponents();
     }
     
-    public void setExifDataForPhoto(Photo photo) throws IOException {
+    public void mergeExifDataForPhoto(Photo photo) throws IOException {
 
         fileNameTextField.setText(photo.getFile().getName());
         directoryLabel.setText(photo.getFile().getParent());
@@ -65,9 +62,12 @@ public class ExifDataPanel extends JPanel {
         fileLengthLabel.setText(photo.getLength());
         lastModifiedLabel.setText(photo.getLastModified());
         changeDateLabel.setText(photo.getCreationTime());
+        
+        titleComboBox.setModel(new DefaultComboBoxModel(photo.geTitleValues()));
+//        titleComboBox
 
         recordingDateComboBox.setModel(new DefaultComboBoxModel(photo.getRecordingDateTimeValues()));
-        recordingDateComboBox.setSelectedIndex(0);
+//        recordingDateComboBox.setSelectedIndex(0);
     }
 
     private void initComponents() {
@@ -105,10 +105,15 @@ public class ExifDataPanel extends JPanel {
     private int initExifDataPanelAddDescriptionInfos(int row) {
 
         titleComboBox = new JComboBox();
+        titleComboBox.setEditable(true);
         subjectComboBox = new JComboBox();
+        subjectComboBox.setEditable(true);
         ratingComboBox = new JComboBox();
+        ratingComboBox.setEditable(true);
         markingComboBox = new JComboBox();
+        markingComboBox.setEditable(true);
         commentsComboBox = new JComboBox();
+        commentsComboBox.setEditable(true);
 
         addCaptionRowToGrid("Description", row++);
 

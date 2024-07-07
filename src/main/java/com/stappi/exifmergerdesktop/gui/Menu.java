@@ -58,15 +58,15 @@ public class Menu extends JMenuBar {
     // =========================================================================
     private void openPhotosMenuItemActionPerformed() {
         List<Photo> newPhotos = Photo.loadPhotos(GuiUtilities.showPhotosChooser(
-                this, mainFrame.getPhotoTableModel().getLastAddedPhotoFile()));
-        mainFrame.getPhotoTableModel().addPhotos(newPhotos);
+                this, mainFrame.getPhotoTablePanel().getTableModel().getLastAddedPhotoFile()));
+        mainFrame.getPhotoTablePanel().getTableModel().addPhotos(newPhotos);
     }
 
     private void openFolderMenuItemActionPerformed() {
-        File directory = GuiUtilities.showDirectoryChooser(
-                this, mainFrame.getPhotoTableModel().getLastAddedPhotoFile());
+        File directory = GuiUtilities.showDirectoryChooser(this, mainFrame
+                .getPhotoTablePanel().getTableModel().getLastAddedPhotoFile());
         List<Photo> newPhotos = Photo.loadPhotosFromDir(directory);
-        mainFrame.getPhotoTableModel().addPhotos(newPhotos);
+        mainFrame.getPhotoTablePanel().getTableModel().addPhotos(newPhotos);
     }
 
     private void saveMenuItemActionPerformed() {
@@ -78,7 +78,7 @@ public class Menu extends JMenuBar {
     }
 
     private void clearPhotoTableMenuItemActionPerformed() {
-        mainFrame.getPhotoTableModel().clear();
+        mainFrame.getPhotoTablePanel().getTableModel().clear();
     }
 
     private void exitMenuItemActionPerformed() {
