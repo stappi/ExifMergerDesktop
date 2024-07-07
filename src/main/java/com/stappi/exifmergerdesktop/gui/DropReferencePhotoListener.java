@@ -28,8 +28,12 @@ import javax.swing.JLabel;
 public class DropReferencePhotoListener implements DropTargetListener {
 
     private final JLabel referenceLabel;
+    
+    private MainFrame mainFrame;
 
-    public DropReferencePhotoListener(JLabel referenceLabel) {
+    public DropReferencePhotoListener(
+            MainFrame mainFrame, JLabel referenceLabel) {
+        this.mainFrame = mainFrame;
         this.referenceLabel = referenceLabel;
     }
 
@@ -74,7 +78,7 @@ public class DropReferencePhotoListener implements DropTargetListener {
                                     GuiUtilities.setImageToLabel(referenceLabel, referencePhoto, 240, 240);
                                     referenceLabel.getParent().setMaximumSize(new Dimension(
                                             Integer.MAX_VALUE, referenceLabel.getParent().getPreferredSize().height));
-                                    //TODO set reference photo
+                                    this.mainFrame.getPhotoTablePanel().getSelectedPhoto().setReferencePhoto(referencePhoto);
                                 } catch (IOException ex) {
                                     Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
                                 }

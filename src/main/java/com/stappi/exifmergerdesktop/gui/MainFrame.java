@@ -116,7 +116,7 @@ public class MainFrame extends JFrame {
         photoExifDataPanel = new ExifDataPanel();
         JScrollPane dataScrollPane = new JScrollPane(photoExifDataPanel);
 
-        photoViewPanel = new PhotoViewPanel();
+        photoViewPanel = new PhotoViewPanel(this);
         JScrollPane photoViewScrollPane = new JScrollPane(photoViewPanel);
 
         // add panels

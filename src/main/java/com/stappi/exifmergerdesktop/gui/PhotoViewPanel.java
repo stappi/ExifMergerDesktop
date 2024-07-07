@@ -32,15 +32,17 @@ public class PhotoViewPanel extends JPanel {
     private static final String IMG_NOT_SET = "images/img_not_set.png";
     private static final String IMG_REFERENCE_NOT_SET = "images/img_ref_not_set.png";
     
+    private MainFrame mainFrame;
     private JLabel photoLabel;
     private JLabel referenceLabel;
     private JButton openReferenceButton;
     private JButton adjustReferenceButton;
     private JButton removeReferenceButton;
 
-    public PhotoViewPanel() {
+    public PhotoViewPanel(MainFrame mainFrame) {
         setLayout(new BorderLayout());
         initComponents();
+        this.mainFrame = mainFrame;
     }
     
     public void showPhotoOnView(Photo photo) throws IOException {
@@ -76,7 +78,7 @@ public class PhotoViewPanel extends JPanel {
         // Reference photo
         JPanel referencePhotoPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
         referenceLabel = new JLabel();
-        new DropTarget(referenceLabel, new DropReferencePhotoListener(referenceLabel));
+        new DropTarget(referenceLabel, new DropReferencePhotoListener(mainFrame, referenceLabel));
         try {
             GuiUtilities.setImageToLabel(referenceLabel, loadImageFromResources(IMG_REFERENCE_NOT_SET), 240, 240);
         } catch (IOException ex) {

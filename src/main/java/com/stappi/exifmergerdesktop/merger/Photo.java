@@ -75,6 +75,10 @@ public class Photo implements Comparable<Photo> {
     public File getFile() {
         return file;
     }
+    
+    public void setReferencePhoto(File referencePhoto) {
+        this.referencePhoto = referencePhoto;
+    }
 
     public String getLastModified() {
         return DATE_TIME_FORMAT.format(new Date(file.lastModified()));

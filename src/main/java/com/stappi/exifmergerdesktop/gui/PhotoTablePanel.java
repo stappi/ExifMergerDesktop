@@ -29,6 +29,8 @@ public class PhotoTablePanel extends JPanel {
 
     private final MainFrame mainFrame;
 
+    private JTable photosTable;
+    
     private PhotoTableModel photoTableModel;
 
     public PhotoTablePanel(MainFrame mainFrame) {
@@ -41,6 +43,10 @@ public class PhotoTablePanel extends JPanel {
 
     public PhotoTableModel getTableModel() {
         return photoTableModel;
+    }
+    
+    public Photo getSelectedPhoto() {
+        return photoTableModel.getPhotoAt(photosTable.getSelectedRow());
     }
 
     private void initComponents() {
@@ -57,12 +63,12 @@ public class PhotoTablePanel extends JPanel {
 
         // Erstellen der Tabelle
         photoTableModel = new PhotoTableModel();
-        JTable photosTable = new JTable(photoTableModel);
+        photosTable = new JTable(photoTableModel);
         photosTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         photosTable.getSelectionModel().addListSelectionListener((ListSelectionEvent event) -> {
             if (!event.getValueIsAdjusting() && photosTable.getSelectedRow() != -1) {
                 try {
-                    setExifDataForSelectedPhoto(photoTableModel.getPhotoAt(photosTable.getSelectedRow()));
+                    setExifDataForSelectedPhoto(getSelectedPhoto());
                 } catch (IOException ex) {
                     Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -75,7 +81,7 @@ public class PhotoTablePanel extends JPanel {
         JMenuItem printExifInfoMenuItem = new JMenuItem("Print Exif Info");
         printExifInfoMenuItem.addActionListener(event -> {
             if (photosTable.getSelectedRow() != -1) {
-                Map<String, String> photos = photoTableModel.getPhotoAt(photosTable.getSelectedRow()).getMetadataAsMap();
+                Map<String, String> photos = getSelectedPhoto().getMetadataAsMap();
                 System.out.println(photos);
             }
         });

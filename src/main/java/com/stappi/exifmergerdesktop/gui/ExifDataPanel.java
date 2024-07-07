@@ -123,7 +123,7 @@ public class ExifDataPanel extends JPanel {
         addRowToGrid("Title:", titleComboBox, row++);
         addRowToGrid("Subject:", subjectComboBox, row++);
         addRowToGrid("Rating:", ratingComboBox, row++);
-        addRowToGrid("Marking:", keywordsComboBox, row++);
+        addRowToGrid("Keywords:", keywordsComboBox, row++);
         addRowToGrid("Comments:", commentsComboBox, row++);
 
         return row;
