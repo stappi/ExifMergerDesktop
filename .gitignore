@@ -8,6 +8,9 @@ target/
 nbactions.xml
 nb-configuration.xml
 
+# IntelliJ specific #
+.idea/
+
 # Compiled class file
 *.class
 
