@@ -31,7 +31,7 @@ public class PhotoViewPanel extends JPanel {
 
     private static final String IMG_NOT_SET = "images/img_not_set.png";
     private static final String IMG_REFERENCE_NOT_SET = "images/img_ref_not_set.png";
-    
+
     private MainFrame mainFrame;
     private JLabel photoLabel;
     private JLabel referenceLabel;
@@ -44,10 +44,15 @@ public class PhotoViewPanel extends JPanel {
         initComponents();
         this.mainFrame = mainFrame;
     }
-    
+
     public void showPhotoOnView(Photo photo) throws IOException {
-        
+
         GuiUtilities.setImageToLabel(photoLabel, photo.getFile(), 240, 240);
+        if (photo.getReferencePhotoFile() != null) {
+            GuiUtilities.setImageToLabel(referenceLabel, photo.getReferencePhotoFile(), 240, 240);
+        } else {
+            GuiUtilities.setImageToLabel(referenceLabel, loadImageFromResources(IMG_REFERENCE_NOT_SET), 240, 240);
+        }
     }
 
     private void initComponents() {
@@ -74,7 +79,7 @@ public class PhotoViewPanel extends JPanel {
         referenceTitlePanel.setMaximumSize(new Dimension(
                 Integer.MAX_VALUE, referenceTitlePanel.getPreferredSize().height));
         referencePanel.add(referenceTitlePanel);
-        
+
         // Reference photo
         JPanel referencePhotoPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
         referenceLabel = new JLabel();
@@ -84,9 +89,9 @@ public class PhotoViewPanel extends JPanel {
         } catch (IOException ex) {
             Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
-        referencePhotoPanel.add(referenceLabel);  
+        referencePhotoPanel.add(referenceLabel);
         referencePhotoPanel.setMaximumSize(new Dimension(
-                Integer.MAX_VALUE, referencePhotoPanel.getPreferredSize().height));             
+                Integer.MAX_VALUE, referencePhotoPanel.getPreferredSize().height));
         referencePanel.add(referencePhotoPanel);
 
         // Reference buttons
@@ -100,14 +105,14 @@ public class PhotoViewPanel extends JPanel {
         manageReferencePanel.setMaximumSize(new Dimension(
                 Integer.MAX_VALUE, manageReferencePanel.getPreferredSize().height));
         referencePanel.add(manageReferencePanel);
-        
+
         add(referencePanel, BorderLayout.CENTER);
     }
 
     private File loadImageFromResources(String path) throws IOException {
         try (InputStream inputStream
                 = MainFrame.class.getClassLoader().getResourceAsStream(path)) {
-            
+
             if (inputStream == null) {
                 throw new IllegalArgumentException("File not found: " + path);
             }

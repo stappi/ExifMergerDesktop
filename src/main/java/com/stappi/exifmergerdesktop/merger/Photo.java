@@ -18,7 +18,6 @@ import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import javax.security.auth.Subject;
 import org.apache.commons.imaging.Imaging;
 import org.apache.commons.imaging.ImagingException;
 import org.apache.commons.imaging.common.GenericImageMetadata.GenericImageMetadataItem;
@@ -53,13 +52,13 @@ public class Photo implements Comparable<Photo> {
     private ExifDataValue title;
     private ExifDataValue subject;
     private ExifDataValue rating;
-    private ExifDataValue marking;
     private ExifDataValue keywords;
     private ExifDataValue comment;
     private ExifDataValue recordingDateTime;
     private ExifDataValue authors;
 
     private JpegImageMetadata jpegMetadataOriginal;
+    private JpegImageMetadata jpegMetadataReference;
 
     public Photo(File file) {
         this.file = file;
@@ -75,9 +74,33 @@ public class Photo implements Comparable<Photo> {
     public File getFile() {
         return file;
     }
-    
+
     public void setReferencePhoto(File referencePhoto) {
         this.referencePhoto = referencePhoto;
+        try {
+            ImageMetadata metadata = Imaging.getMetadata(file);
+            jpegMetadataReference = (JpegImageMetadata) metadata;
+            this.title.setReference(getTagValue(
+                    jpegMetadataReference, MicrosoftTagConstants.EXIF_TAG_XPTITLE));
+            this.subject.setReference(getTagValue(
+                    jpegMetadataReference, MicrosoftTagConstants.EXIF_TAG_XPSUBJECT));
+            this.rating.setReference(getTagValue(
+                    jpegMetadataReference, MicrosoftTagConstants.EXIF_TAG_RATING));
+            this.keywords.setReference(getTagValue(
+                    jpegMetadataReference, MicrosoftTagConstants.EXIF_TAG_XPKEYWORDS));
+            this.comment.setReference(getTagValue(
+                    jpegMetadataReference, MicrosoftTagConstants.EXIF_TAG_XPCOMMENT));
+            this.authors.setReference(getTagValue(
+                    jpegMetadataReference, MicrosoftTagConstants.EXIF_TAG_XPAUTHOR));
+            this.recordingDateTime.setReference(getTagValue(
+                    jpegMetadataReference, ExifTagConstants.EXIF_TAG_DATE_TIME_ORIGINAL));
+        } catch (IOException ex) {
+            Logger.getLogger(Photo.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public File getReferencePhotoFile() {
+        return referencePhoto;
     }
 
     public String getLastModified() {
@@ -105,7 +128,7 @@ public class Photo implements Comparable<Photo> {
             title = ExifDataValue.builder()
                     .mergePrio(SETTINGS.getMergePriorization().getTitle())
                     .original(getTagValue(jpegMetadataOriginal, MicrosoftTagConstants.EXIF_TAG_XPTITLE))
-                    .reference(null)
+                    .reference(getTagValue(jpegMetadataReference, MicrosoftTagConstants.EXIF_TAG_XPTITLE))
                     .settingsValue(SETTINGS.getGeneralExifData().getTitle())
                     .build();
         }
@@ -123,7 +146,7 @@ public class Photo implements Comparable<Photo> {
             subject = ExifDataValue.builder()
                     .mergePrio(SETTINGS.getMergePriorization().getSubject())
                     .original(getTagValue(jpegMetadataOriginal, MicrosoftTagConstants.EXIF_TAG_XPSUBJECT))
-                    .reference(null)
+                    .reference(getTagValue(jpegMetadataReference, MicrosoftTagConstants.EXIF_TAG_XPSUBJECT))
                     .settingsValue(SETTINGS.getGeneralExifData().getSubject())
                     .build();
         }
@@ -141,7 +164,7 @@ public class Photo implements Comparable<Photo> {
             rating = ExifDataValue.builder()
                     .mergePrio(SETTINGS.getMergePriorization().getRating())
                     .original(getTagValue(jpegMetadataOriginal, MicrosoftTagConstants.EXIF_TAG_RATING))
-                    .reference(null)
+                    .reference(getTagValue(jpegMetadataReference, MicrosoftTagConstants.EXIF_TAG_RATING))
                     .build();
         }
 
@@ -158,7 +181,7 @@ public class Photo implements Comparable<Photo> {
             keywords = ExifDataValue.builder()
                     .mergePrio(SETTINGS.getMergePriorization().getKeywords())
                     .original(getTagValue(jpegMetadataOriginal, MicrosoftTagConstants.EXIF_TAG_XPKEYWORDS))
-                    .reference(null)
+                    .reference(getTagValue(jpegMetadataReference, MicrosoftTagConstants.EXIF_TAG_XPKEYWORDS))
                     .settingsValue(SETTINGS.getGeneralExifData().getKeywords())
                     .build();
         }
@@ -169,14 +192,14 @@ public class Photo implements Comparable<Photo> {
     public void setKeywords(String keywords) {
         this.keywords.setValue(keywords);
     }
-    
+
     public String[] getCommentValues() {
 
         if (comment == null) {
             comment = ExifDataValue.builder()
                     .mergePrio(SETTINGS.getMergePriorization().getComment())
                     .original(getTagValue(jpegMetadataOriginal, MicrosoftTagConstants.EXIF_TAG_XPCOMMENT))
-                    .reference(null)
+                    .reference(getTagValue(jpegMetadataReference, MicrosoftTagConstants.EXIF_TAG_XPCOMMENT))
                     .settingsValue(SETTINGS.getGeneralExifData().getSubject())
                     .build();
         }
@@ -194,7 +217,7 @@ public class Photo implements Comparable<Photo> {
             authors = ExifDataValue.builder()
                     .mergePrio(SETTINGS.getMergePriorization().getAuthors())
                     .original(getTagValue(jpegMetadataOriginal, MicrosoftTagConstants.EXIF_TAG_XPAUTHOR))
-                    .reference(null)
+                    .reference(getTagValue(jpegMetadataReference, MicrosoftTagConstants.EXIF_TAG_XPAUTHOR))
                     .settingsValue(SETTINGS.getGeneralExifData().getSubject())
                     .build();
         }
@@ -213,7 +236,7 @@ public class Photo implements Comparable<Photo> {
             recordingDateTime = ExifDataValue.builder()
                     .mergePrio(SETTINGS.getMergePriorization().getRecordingDate())
                     .original(getTagValue(jpegMetadataOriginal, ExifTagConstants.EXIF_TAG_DATE_TIME_ORIGINAL))
-                    .reference(null)
+                    .reference(getTagValue(jpegMetadataReference, ExifTagConstants.EXIF_TAG_DATE_TIME_ORIGINAL))
                     .settingsValue(SETTINGS.getGeneralExifData().getRecordingDate())
                     .build();
         }
