@@ -18,6 +18,8 @@ import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+
+import lombok.NonNull;
 import org.apache.commons.imaging.Imaging;
 import org.apache.commons.imaging.ImagingException;
 import org.apache.commons.imaging.common.GenericImageMetadata.GenericImageMetadataItem;
@@ -45,6 +47,7 @@ public class Photo implements Comparable<Photo> {
 
     private static final SettingsManager SETTINGS = SettingsManager.getInstance();
 
+    @NonNull
     private final File file;
 
     private File referencePhoto;
