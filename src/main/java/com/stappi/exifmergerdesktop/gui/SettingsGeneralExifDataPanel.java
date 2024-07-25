@@ -55,10 +55,19 @@ public class SettingsGeneralExifDataPanel extends JPanel {
     }
         
     public ExifData getExifData() {
+        // description
         exifData.setTitle(titleTextField.getText());
         exifData.setSubject(subjectTextField.getText());
+        exifData.setRating(ratingTextField.getText());
+        exifData.setKeywords(keywordsTextField.getText());
         exifData.setComments(commentsTextField.getText());
+        // source
         exifData.setAuthors(authorsTextField.getText());
+        exifData.setRecordingDate(recordingDateTextField.getText());
+        exifData.setSoftware(softwareNameTextField.getText());
+        exifData.setEntryDate(entryDateTextField.getText());
+        exifData.setCopyRight(copyRightTextField.getText());
+
         return exifData;
     }
     

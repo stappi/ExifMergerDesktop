@@ -17,10 +17,12 @@ public class ExifData {
     
     private String title;
     private String subject;
+    private String rating;
     private String keywords;
     private String comments;
     private String authors;
     private String recordingDate;
     private String software;
+    private String entryDate;
     private String copyRight;
 }
