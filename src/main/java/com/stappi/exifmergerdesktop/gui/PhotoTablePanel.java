@@ -33,6 +33,8 @@ public class PhotoTablePanel extends JPanel {
     
     private PhotoTableModel photoTableModel;
 
+    private JTextField searchTextField;
+
     public PhotoTablePanel(MainFrame mainFrame) {
         super(new BorderLayout());
 
@@ -52,12 +54,26 @@ public class PhotoTablePanel extends JPanel {
     private void initComponents() {
         // Hinzufügen des Suchfelds und der Buttons im oberen Panel
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JTextField searchField = new JTextField(20);
+
+        searchTextField = new JTextField(20);
+        searchTextField.addFocusListener(new java.awt.event.FocusAdapter() {
+            @Override
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                searchFieldFocusGained();
+            }
+        });
+        searchTextField.addKeyListener(new java.awt.event.KeyAdapter() {
+            @Override
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                searchFieldKeyReleased();
+            }
+        });
+
         JButton selectAllButton = new JButton("Select all");
         JButton deselectAllButton = new JButton("Deselect all");
 
         searchPanel.add(new JLabel("Search:"));
-        searchPanel.add(searchField);
+        searchPanel.add(searchTextField);
 //        searchPanel.add(selectAllButton);
 //        searchPanel.add(deselectAllButton);
 
@@ -118,5 +134,13 @@ public class PhotoTablePanel extends JPanel {
 
         mainFrame.getExifDataPanel().mergeExifDataForPhoto(photo);
         mainFrame.getPhotoViewPanel().showPhotoOnView(photo);
+    }
+
+    private void searchFieldFocusGained() {
+        searchTextField.selectAll();
+    }
+
+    private void searchFieldKeyReleased() {
+        photoTableModel.filter(searchTextField.getText());
     }
 }
