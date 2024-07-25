@@ -84,15 +84,21 @@ public class Sidebar extends JPanel {
         okButton.addActionListener((ActionEvent e) -> {
             okButtonActionPerformed();
         });
-        cancelButton = new JButton("Cancel");
-        cancelButton.addActionListener((ActionEvent e) -> {
-            cancelButtonActionPerformed();
-        });
-        saveButton = new JButton("Save");
-        saveCopyButton = new JButton("Copy & Save");
         applyButton = new JButton("Apply");
         applyButton.addActionListener((ActionEvent e) -> {
             applyButtonActionPerformed();
+        });
+        saveButton = new JButton("Save");
+        saveButton.addActionListener((ActionEvent e) -> {
+            saveButtonActionPerformed();
+        });
+        saveCopyButton = new JButton("Save copy");
+        saveCopyButton.addActionListener((ActionEvent e) -> {
+            saveCopyButtonActionPerformed();
+        });
+        cancelButton = new JButton("Cancel");
+        cancelButton.addActionListener((ActionEvent e) -> {
+            cancelButtonActionPerformed();
         });
     }
 
@@ -121,6 +127,18 @@ public class Sidebar extends JPanel {
                     mainFrame.getGeneralExifDataPanel().getExifData());
         } else if (View.MERGE_PRIO.equals(currentView)) {
             SettingsManager.getInstance().saveGeneralExifData(null);
+        }
+    }
+
+    private void saveButtonActionPerformed() {
+        if (View.PHOTOS.equals(currentView)) {
+            System.out.println("Save button clicked");
+        }
+    }
+
+    private void saveCopyButtonActionPerformed() {
+        if (View.PHOTOS.equals(currentView)) {
+            System.out.println("Save copy button clicked");
         }
     }
 

@@ -22,7 +22,7 @@ import javax.swing.table.DefaultTableModel;
 public class PhotoTableModel extends DefaultTableModel {
 
     private static final String[] COLUMN_NAMES = new String[]{
-        "File", "Extension", "Letzte Änderung", "Size"
+        "File", "Extension", "Last updated", "Size"
     };
 
     private List<Photo> photos;
