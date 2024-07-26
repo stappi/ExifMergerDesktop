@@ -1,5 +1,5 @@
 
-package com.stappi.exifmergerdesktop.gui;
+package com.stappi.exifmergerdesktop.gui.panel;
 
 import com.stappi.exifmergerdesktop.merger.Photo;
 import com.stappi.exifmergerdesktop.utilities.FileUtilities;
@@ -26,7 +26,7 @@ public class ExifDataPanel extends JPanel {
 
     private final GridBagConstraints constraints;
 
-    private JTextField fileNameTextField;
+    private JLabel fileNameTextField;
     private JLabel directoryLabel;
     private JLabel fileTypeLabel;
     private JLabel fileLengthLabel;
@@ -86,7 +86,7 @@ public class ExifDataPanel extends JPanel {
 
     private int initExifDataPanelAddFileInfos(int row) {
 
-        fileNameTextField = new JTextField();
+        fileNameTextField = new JLabel();
         directoryLabel = new JLabel();
         fileTypeLabel = new JLabel();
         fileLengthLabel = new JLabel();

@@ -2,9 +2,11 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package com.stappi.exifmergerdesktop.gui;
+package com.stappi.exifmergerdesktop.gui.panel;
 
 import com.stappi.exifmergerdesktop.SettingsManager;
+import com.stappi.exifmergerdesktop.gui.MainFrame;
+import com.stappi.exifmergerdesktop.merger.Photo;
 import com.stappi.exifmergerdesktop.utilities.GuiUtilities;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -132,13 +134,13 @@ public class Sidebar extends JPanel {
 
     private void saveButtonActionPerformed() {
         if (View.PHOTOS.equals(currentView)) {
-            System.out.println("Save button clicked");
+            Photo.savePhoto(mainFrame.getPhotoTablePanel().getSelectedPhoto(), false);
         }
     }
 
     private void saveCopyButtonActionPerformed() {
         if (View.PHOTOS.equals(currentView)) {
-            System.out.println("Save copy button clicked");
+            Photo.savePhoto(mainFrame.getPhotoTablePanel().getSelectedPhoto(), true);
         }
     }
 

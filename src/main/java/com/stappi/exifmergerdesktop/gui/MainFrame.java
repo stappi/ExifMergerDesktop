@@ -4,6 +4,12 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import javax.swing.*;
 
+import com.stappi.exifmergerdesktop.gui.panel.ExifDataPanel;
+import com.stappi.exifmergerdesktop.gui.panel.PhotoTablePanel;
+import com.stappi.exifmergerdesktop.gui.panel.PhotoViewPanel;
+import com.stappi.exifmergerdesktop.gui.panel.SettingsGeneralExifDataPanel;
+import com.stappi.exifmergerdesktop.gui.panel.Sidebar;
+
 public class MainFrame extends JFrame {
 
     private static final int MAIN_FRAME_WIDTH = 1200;

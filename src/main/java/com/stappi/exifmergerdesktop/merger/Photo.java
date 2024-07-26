@@ -333,6 +333,13 @@ public class Photo implements Comparable<Photo> {
                 .collect(Collectors.toList());
     }
 
+    public static void savePhoto(Photo photo, boolean saveAsCopy) {
+        if (photo == null) {
+            return;
+        }
+        System.out.println("Saving photo: " + photo.getFile().getAbsolutePath() + " as copy?: " + saveAsCopy);
+    }
+
     // private =================================================================
 //    private String getTagValue(JpegImageMetadata jpegMetadata, TagInfo tagInfo) {
 //        return Optional.ofNullable(jpegMetadata)

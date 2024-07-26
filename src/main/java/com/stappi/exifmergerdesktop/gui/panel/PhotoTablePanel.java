@@ -1,5 +1,8 @@
-package com.stappi.exifmergerdesktop.gui;
+package com.stappi.exifmergerdesktop.gui.panel;
 
+import com.stappi.exifmergerdesktop.gui.DropPhotoListListener;
+import com.stappi.exifmergerdesktop.gui.MainFrame;
+import com.stappi.exifmergerdesktop.gui.PhotoTableModel;
 import com.stappi.exifmergerdesktop.merger.Photo;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;

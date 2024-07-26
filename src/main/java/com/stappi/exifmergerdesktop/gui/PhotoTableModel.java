@@ -64,13 +64,17 @@ public class PhotoTableModel extends DefaultTableModel {
     }
 
     public Photo getPhotoAt(int index) {
-        return this.photos.get(index);
+        if (index < 0 || index >= this.filteredPhotos.size()) {
+            return null;
+        }
+        return this.filteredPhotos.get(index);
     }
 
     @Override
     public void removeRow(int row) {
         super.removeRow(row);
-        this.photos.remove(row);
+        this.photos.remove(this.filteredPhotos.remove(row));
+        this.filteredPhotos.remove(row);
     }
 
     private void setPhotos(List<Photo> newPhotos) {

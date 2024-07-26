@@ -2,9 +2,10 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package com.stappi.exifmergerdesktop.gui;
+package com.stappi.exifmergerdesktop.gui.panel;
 
 import com.stappi.exifmergerdesktop.SettingsManager;
+import com.stappi.exifmergerdesktop.gui.MainFrame;
 import com.stappi.exifmergerdesktop.merger.ExifData;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
