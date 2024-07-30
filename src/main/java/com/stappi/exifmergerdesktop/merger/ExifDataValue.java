@@ -7,6 +7,8 @@ package com.stappi.exifmergerdesktop.merger;
 import com.stappi.exifmergerdesktop.utilities.Utilities;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
+
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Setter;
@@ -53,6 +55,27 @@ public class ExifDataValue {
         }
         return "";
     }
+
+    public short getValueShort() {
+        try {
+            if (!Utilities.isEmpty(value)) {
+                return Short.parseShort(value);
+            }
+            for (ExifDataSource source : mergePrio) {
+                if (ExifDataSource.ORIGINAL.equals(source) && !Utilities.isEmpty(original)) {
+                    return Short.parseShort(original);
+                } else if (ExifDataSource.REFERENCE.equals(source) && !Utilities.isEmpty(reference)) {
+                    return Short.parseShort(reference);
+                } else if (ExifDataSource.SETTING.equals(source) && !Utilities.isEmpty(settingsValue)) {
+                    return Short.parseShort(settingsValue);
+                }
+            }
+        } catch (NumberFormatException e) {
+            Logger.getLogger(ExifDataValue.class.getName()).warning("Could not parse short value: " + e.getMessage());
+        }
+        return 0;
+    }
+
     
     private void addValueToListIfNotEmpty(List<String> values, String value) {
         if (value != null && !value.replace(" ", "").isEmpty()) {                        

@@ -1,9 +1,14 @@
 package com.stappi.exifmergerdesktop.merger;
 
 import com.stappi.exifmergerdesktop.SettingsManager;
+
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.text.SimpleDateFormat;
@@ -11,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,12 +32,15 @@ import org.apache.commons.imaging.common.GenericImageMetadata.GenericImageMetada
 import org.apache.commons.imaging.common.ImageMetadata;
 import org.apache.commons.imaging.common.ImageMetadata.ImageMetadataItem;
 import org.apache.commons.imaging.formats.jpeg.JpegImageMetadata;
+import org.apache.commons.imaging.formats.jpeg.exif.ExifRewriter;
+import org.apache.commons.imaging.formats.tiff.TiffImageMetadata;
 import org.apache.commons.imaging.formats.tiff.constants.ExifTagConstants;
 import org.apache.commons.imaging.formats.tiff.constants.MicrosoftTagConstants;
 import org.apache.commons.imaging.formats.tiff.taginfos.TagInfo;
+import org.apache.commons.imaging.formats.tiff.write.TiffOutputSet;
+import org.apache.commons.imaging.formats.tiff.write.TiffOutputDirectory;
 
 /**
- *
  * @author Michael Stappert
  */
 public class Photo implements Comparable<Photo> {
@@ -101,7 +110,7 @@ public class Photo implements Comparable<Photo> {
             Logger.getLogger(Photo.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     public File getReferencePhotoFile() {
         return referencePhoto;
     }
@@ -129,11 +138,11 @@ public class Photo implements Comparable<Photo> {
 
         if (title == null) {
             title = ExifDataValue.builder()
-                    .mergePrio(SETTINGS.getMergePriorization().getTitle())
-                    .original(getTagValue(jpegMetadataOriginal, MicrosoftTagConstants.EXIF_TAG_XPTITLE))
-                    .reference(getTagValue(jpegMetadataReference, MicrosoftTagConstants.EXIF_TAG_XPTITLE))
-                    .settingsValue(SETTINGS.getGeneralExifData().getTitle())
-                    .build();
+                                 .mergePrio(SETTINGS.getMergePriorization().getTitle())
+                                 .original(getTagValue(jpegMetadataOriginal, MicrosoftTagConstants.EXIF_TAG_XPTITLE))
+                                 .reference(getTagValue(jpegMetadataReference, MicrosoftTagConstants.EXIF_TAG_XPTITLE))
+                                 .settingsValue(SETTINGS.getGeneralExifData().getTitle())
+                                 .build();
         }
 
         return title.getValues();
@@ -147,11 +156,11 @@ public class Photo implements Comparable<Photo> {
 
         if (subject == null) {
             subject = ExifDataValue.builder()
-                    .mergePrio(SETTINGS.getMergePriorization().getSubject())
-                    .original(getTagValue(jpegMetadataOriginal, MicrosoftTagConstants.EXIF_TAG_XPSUBJECT))
-                    .reference(getTagValue(jpegMetadataReference, MicrosoftTagConstants.EXIF_TAG_XPSUBJECT))
-                    .settingsValue(SETTINGS.getGeneralExifData().getSubject())
-                    .build();
+                                   .mergePrio(SETTINGS.getMergePriorization().getSubject())
+                                   .original(getTagValue(jpegMetadataOriginal, MicrosoftTagConstants.EXIF_TAG_XPSUBJECT))
+                                   .reference(getTagValue(jpegMetadataReference, MicrosoftTagConstants.EXIF_TAG_XPSUBJECT))
+                                   .settingsValue(SETTINGS.getGeneralExifData().getSubject())
+                                   .build();
         }
 
         return subject.getValues();
@@ -165,10 +174,10 @@ public class Photo implements Comparable<Photo> {
 
         if (rating == null) {
             rating = ExifDataValue.builder()
-                    .mergePrio(SETTINGS.getMergePriorization().getRating())
-                    .original(getTagValue(jpegMetadataOriginal, MicrosoftTagConstants.EXIF_TAG_RATING))
-                    .reference(getTagValue(jpegMetadataReference, MicrosoftTagConstants.EXIF_TAG_RATING))
-                    .build();
+                                  .mergePrio(SETTINGS.getMergePriorization().getRating())
+                                  .original(getTagValue(jpegMetadataOriginal, MicrosoftTagConstants.EXIF_TAG_RATING))
+                                  .reference(getTagValue(jpegMetadataReference, MicrosoftTagConstants.EXIF_TAG_RATING))
+                                  .build();
         }
 
         return rating.getValues();
@@ -182,11 +191,11 @@ public class Photo implements Comparable<Photo> {
 
         if (keywords == null) {
             keywords = ExifDataValue.builder()
-                    .mergePrio(SETTINGS.getMergePriorization().getKeywords())
-                    .original(getTagValue(jpegMetadataOriginal, MicrosoftTagConstants.EXIF_TAG_XPKEYWORDS))
-                    .reference(getTagValue(jpegMetadataReference, MicrosoftTagConstants.EXIF_TAG_XPKEYWORDS))
-                    .settingsValue(SETTINGS.getGeneralExifData().getKeywords())
-                    .build();
+                                    .mergePrio(SETTINGS.getMergePriorization().getKeywords())
+                                    .original(getTagValue(jpegMetadataOriginal, MicrosoftTagConstants.EXIF_TAG_XPKEYWORDS))
+                                    .reference(getTagValue(jpegMetadataReference, MicrosoftTagConstants.EXIF_TAG_XPKEYWORDS))
+                                    .settingsValue(SETTINGS.getGeneralExifData().getKeywords())
+                                    .build();
         }
 
         return keywords.getValues();
@@ -200,11 +209,11 @@ public class Photo implements Comparable<Photo> {
 
         if (comment == null) {
             comment = ExifDataValue.builder()
-                    .mergePrio(SETTINGS.getMergePriorization().getComment())
-                    .original(getTagValue(jpegMetadataOriginal, MicrosoftTagConstants.EXIF_TAG_XPCOMMENT))
-                    .reference(getTagValue(jpegMetadataReference, MicrosoftTagConstants.EXIF_TAG_XPCOMMENT))
-                    .settingsValue(SETTINGS.getGeneralExifData().getSubject())
-                    .build();
+                                   .mergePrio(SETTINGS.getMergePriorization().getComment())
+                                   .original(getTagValue(jpegMetadataOriginal, MicrosoftTagConstants.EXIF_TAG_XPCOMMENT))
+                                   .reference(getTagValue(jpegMetadataReference, MicrosoftTagConstants.EXIF_TAG_XPCOMMENT))
+                                   .settingsValue(SETTINGS.getGeneralExifData().getSubject())
+                                   .build();
         }
 
         return comment.getValues();
@@ -218,11 +227,11 @@ public class Photo implements Comparable<Photo> {
 
         if (authors == null) {
             authors = ExifDataValue.builder()
-                    .mergePrio(SETTINGS.getMergePriorization().getAuthors())
-                    .original(getTagValue(jpegMetadataOriginal, MicrosoftTagConstants.EXIF_TAG_XPAUTHOR))
-                    .reference(getTagValue(jpegMetadataReference, MicrosoftTagConstants.EXIF_TAG_XPAUTHOR))
-                    .settingsValue(SETTINGS.getGeneralExifData().getSubject())
-                    .build();
+                                   .mergePrio(SETTINGS.getMergePriorization().getAuthors())
+                                   .original(getTagValue(jpegMetadataOriginal, MicrosoftTagConstants.EXIF_TAG_XPAUTHOR))
+                                   .reference(getTagValue(jpegMetadataReference, MicrosoftTagConstants.EXIF_TAG_XPAUTHOR))
+                                   .settingsValue(SETTINGS.getGeneralExifData().getSubject())
+                                   .build();
         }
 
         return authors.getValues();
@@ -237,11 +246,11 @@ public class Photo implements Comparable<Photo> {
 
         if (recordingDateTime == null) {
             recordingDateTime = ExifDataValue.builder()
-                    .mergePrio(SETTINGS.getMergePriorization().getRecordingDate())
-                    .original(getTagValue(jpegMetadataOriginal, ExifTagConstants.EXIF_TAG_DATE_TIME_ORIGINAL))
-                    .reference(getTagValue(jpegMetadataReference, ExifTagConstants.EXIF_TAG_DATE_TIME_ORIGINAL))
-                    .settingsValue(SETTINGS.getGeneralExifData().getRecordingDate())
-                    .build();
+                                             .mergePrio(SETTINGS.getMergePriorization().getRecordingDate())
+                                             .original(getTagValue(jpegMetadataOriginal, ExifTagConstants.EXIF_TAG_DATE_TIME_ORIGINAL))
+                                             .reference(getTagValue(jpegMetadataReference, ExifTagConstants.EXIF_TAG_DATE_TIME_ORIGINAL))
+                                             .settingsValue(SETTINGS.getGeneralExifData().getRecordingDate())
+                                             .build();
         }
 
         return recordingDateTime.getValues();
@@ -278,6 +287,20 @@ public class Photo implements Comparable<Photo> {
         return map;
     }
 
+    public void save(boolean saveAsCopy) {
+        File outputFile = saveAsCopy ? new File(file.getParentFile(), "copy_" + file.getName()) : file;
+
+        try (FileOutputStream fileOutputStream = new FileOutputStream(outputFile);
+             OutputStream outputStream = new BufferedOutputStream(fileOutputStream)) {
+
+            new ExifRewriter().updateExifMetadataLossless(file, outputStream, getMetadata());
+        } catch (ImagingException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Override
     public int compareTo(Photo photo) {
         return this.file.getAbsolutePath().compareTo(photo.getFile().getAbsolutePath());
@@ -312,11 +335,11 @@ public class Photo implements Comparable<Photo> {
     public static List<Photo> loadPhotosFromDir(File directory) {
 
         return directory != null && directory.isDirectory()
-                ? Arrays.asList(directory.listFiles(ACCEPTED_FILES))
-                        .stream()
-                        .map(file -> new Photo(file))
-                        .collect(Collectors.toList())
-                : new ArrayList<>();
+               ? Arrays.asList(directory.listFiles(ACCEPTED_FILES))
+                       .stream()
+                       .map(file -> new Photo(file))
+                       .collect(Collectors.toList())
+               : new ArrayList<>();
     }
 
     public static List<Photo> loadPhotos(File... files) {
@@ -331,13 +354,6 @@ public class Photo implements Comparable<Photo> {
                 .filter(file -> ACCEPTED_FILES.accept(file))
                 .map(file -> new Photo(file))
                 .collect(Collectors.toList());
-    }
-
-    public static void savePhoto(Photo photo, boolean saveAsCopy) {
-        if (photo == null) {
-            return;
-        }
-        System.out.println("Saving photo: " + photo.getFile().getAbsolutePath() + " as copy?: " + saveAsCopy);
     }
 
     // private =================================================================
@@ -359,5 +375,48 @@ public class Photo implements Comparable<Photo> {
             Logger.getLogger(Photo.class.getName()).log(Level.SEVERE, null, ex);
             return "";
         }
+    }
+
+    /**
+     * See: https://github.com/apache/commons-imaging/blob/master/src/test/java/org/apache/commons/imaging/examples/WriteExifMetadataExample.java
+     *
+     * @return
+     * @throws IOException
+     */
+    private TiffOutputSet getMetadata() throws IOException {
+
+        TiffOutputSet outputSet = null;
+
+        // note that metadata might be null if no metadata is found.
+        final ImageMetadata metadata = Imaging.getMetadata(file);
+        final JpegImageMetadata jpegMetadata = (JpegImageMetadata) metadata;
+        if (null != jpegMetadata) {
+            final TiffImageMetadata exif = jpegMetadata.getExif();
+
+            if (null != exif) {
+                outputSet = exif.getOutputSet();
+            }
+        }
+        // if file does not contain any exif metadata, we create an empty
+        if (null == outputSet) {
+            outputSet = new TiffOutputSet();
+        }
+
+        // remove old metadata and add new metadata
+        final TiffOutputDirectory exifDirectory = outputSet.getOrCreateExifDirectory();
+
+//        outputSet.addRootDirectory()
+        outputSet.getRootDirectory().add(MicrosoftTagConstants.EXIF_TAG_XPTITLE, title.getValue());
+        outputSet.getRootDirectory().add(MicrosoftTagConstants.EXIF_TAG_XPSUBJECT, subject.getValue());
+        outputSet.getRootDirectory().add(MicrosoftTagConstants.EXIF_TAG_RATING, rating.getValueShort());
+        outputSet.getRootDirectory().add(MicrosoftTagConstants.EXIF_TAG_XPKEYWORDS, keywords.getValue());
+        outputSet.getRootDirectory().add(MicrosoftTagConstants.EXIF_TAG_XPCOMMENT, comment.getValue());
+        outputSet.getRootDirectory().add(ExifTagConstants.EXIF_TAG_DATE_TIME_ORIGINAL, recordingDateTime.getValue());
+        outputSet.getRootDirectory().add(MicrosoftTagConstants.EXIF_TAG_XPAUTHOR, authors.getValue());
+
+        // Example of how to add/update GPS info to output set.
+        outputSet.setGpsInDegrees(-74.0, 40 + 43 / 60.0);
+
+        return outputSet;
     }
 }

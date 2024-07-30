@@ -134,13 +134,13 @@ public class Sidebar extends JPanel {
 
     private void saveButtonActionPerformed() {
         if (View.PHOTOS.equals(currentView)) {
-            Photo.savePhoto(mainFrame.getPhotoTablePanel().getSelectedPhoto(), false);
+            mainFrame.getPhotoTablePanel().getSelectedPhoto().save(false);
         }
     }
 
     private void saveCopyButtonActionPerformed() {
         if (View.PHOTOS.equals(currentView)) {
-            Photo.savePhoto(mainFrame.getPhotoTablePanel().getSelectedPhoto(), true);
+            mainFrame.getPhotoTablePanel().getSelectedPhoto().save(true);
         }
     }
 
